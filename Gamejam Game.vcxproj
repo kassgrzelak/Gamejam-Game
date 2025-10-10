@@ -143,6 +143,7 @@
     <ClCompile Include="..\__Libs__\Vec2\Vec2.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\__Libs__\Logging\errs.hpp" />
@@ -151,10 +152,14 @@
     <ClInclude Include="..\__Libs__\Vec2\Vec2.hpp" />
     <ClInclude Include="common.hpp" />
     <ClInclude Include="Game.hpp" />
+    <ClInclude Include="GameState.hpp" />
     <ClInclude Include="Player.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="credits.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\ship.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,21 +1,20 @@
 #pragma once
 
 #include "common.hpp"
+#include "GameState.hpp"
+#include "Player.hpp"
 
 class Game
 {
 public:
 	void init();
-
 	void run();
-
 	void end();
 
 private:
-	bool showFPS = false;
+	GameState gameState;
+	Player player;
 
-	int screenWidth = 800;
-	int screenHeight = 600;
-
+	void update();
 	void draw();
 };
