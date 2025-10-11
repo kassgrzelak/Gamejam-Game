@@ -22,6 +22,12 @@
     <Filter Include="Source Files\Libs\Vec2">
       <UniqueIdentifier>{d6b3baad-0840-42ae-953f-59055b0cd7da}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\assets">
+      <UniqueIdentifier>{e982a220-7a96-49ab-8158-8203295b6a91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Libs\rand">
+      <UniqueIdentifier>{45c57016-c726-484c-93e9-a6d250699f44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -37,6 +43,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\__Libs__\Rand\rand.cpp">
+      <Filter>Source Files\Libs\rand</Filter>
+    </ClCompile>
+    <ClCompile Include="GameCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -65,13 +83,79 @@
     <ClInclude Include="GameState.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\__Libs__\Rand\rand.hpp">
+      <Filter>Source Files\Libs\rand</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCamera.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="credits.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="assets\blue1.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\blue2.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\blue3.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\blue4.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\blue5.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\green1.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\green2.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\green3.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\green4.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\green5.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\purp1.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\purp2.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\purp3.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\purp4.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\purp5.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\star1.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\star2.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\star3.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\star4.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\star5.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
     <Image Include="assets\ship.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files\assets</Filter>
     </Image>
   </ItemGroup>
 </Project>

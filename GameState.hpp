@@ -7,5 +7,7 @@ struct GameState
 	int screenWidth;
 	int screenHeight;
 
-	bool showFPS = false;
+	float borderRadius;
+
+	Vec2 getScreenCenter() const;
 };

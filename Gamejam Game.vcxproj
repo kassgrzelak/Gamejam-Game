@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\kasss\Documents\My Code\C++\__Libs__\Vec2;C:\Users\kasss\Documents\My Code\C++\__Libs__\Logging;C:\Users\kasss\Documents\My Code\C++\__Libs__\raylib\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\kasss\Documents\My Code\C++\__Libs__\Rand;C:\Users\kasss\Documents\My Code\C++\__Libs__\Vec2;C:\Users\kasss\Documents\My Code\C++\__Libs__\Logging;C:\Users\kasss\Documents\My Code\C++\__Libs__\raylib\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -125,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\kasss\Documents\My Code\C++\__Libs__\Vec2;C:\Users\kasss\Documents\My Code\C++\__Libs__\Logging;C:\Users\kasss\Documents\My Code\C++\__Libs__\raylib\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\kasss\Documents\My Code\C++\__Libs__\Rand;C:\Users\kasss\Documents\My Code\C++\__Libs__\Vec2;C:\Users\kasss\Documents\My Code\C++\__Libs__\Logging;C:\Users\kasss\Documents\My Code\C++\__Libs__\raylib\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
@@ -140,8 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\__Libs__\Logging\logging.cpp" />
+    <ClCompile Include="..\__Libs__\Rand\rand.cpp" />
     <ClCompile Include="..\__Libs__\Vec2\Vec2.cpp" />
+    <ClCompile Include="common.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameCamera.cpp" />
+    <ClCompile Include="GameState.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
@@ -149,9 +153,11 @@
     <ClInclude Include="..\__Libs__\Logging\errs.hpp" />
     <ClInclude Include="..\__Libs__\Logging\logging.hpp" />
     <ClInclude Include="..\__Libs__\Logging\warns.hpp" />
+    <ClInclude Include="..\__Libs__\Rand\rand.hpp" />
     <ClInclude Include="..\__Libs__\Vec2\Vec2.hpp" />
     <ClInclude Include="common.hpp" />
     <ClInclude Include="Game.hpp" />
+    <ClInclude Include="GameCamera.hpp" />
     <ClInclude Include="GameState.hpp" />
     <ClInclude Include="Player.hpp" />
   </ItemGroup>
@@ -159,7 +165,27 @@
     <Text Include="credits.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="assets\blue1.png" />
+    <Image Include="assets\blue2.png" />
+    <Image Include="assets\blue3.png" />
+    <Image Include="assets\blue4.png" />
+    <Image Include="assets\blue5.png" />
+    <Image Include="assets\green1.png" />
+    <Image Include="assets\green2.png" />
+    <Image Include="assets\green3.png" />
+    <Image Include="assets\green4.png" />
+    <Image Include="assets\green5.png" />
+    <Image Include="assets\purp1.png" />
+    <Image Include="assets\purp2.png" />
+    <Image Include="assets\purp3.png" />
+    <Image Include="assets\purp4.png" />
+    <Image Include="assets\purp5.png" />
     <Image Include="assets\ship.png" />
+    <Image Include="assets\star1.png" />
+    <Image Include="assets\star2.png" />
+    <Image Include="assets\star3.png" />
+    <Image Include="assets\star4.png" />
+    <Image Include="assets\star5.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

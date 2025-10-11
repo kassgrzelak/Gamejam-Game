@@ -9,11 +9,12 @@ static constexpr float overspeedAccel = 40.0f;
 static constexpr float rotSpeed = 5.0f;
 static constexpr float rotAccel = 5.0f;
 
-static Texture2D shipTex;
+static constexpr float collisionDamping = 0.6f;
 
-void Player::init(Vec2 pos)
+static constexpr float playerScale = 1.0f;
+
+void Player::init()
 {
-	this->pos = pos;
 	shipTex = LoadTexture("assets/ship.png");
 }
 
@@ -21,10 +22,13 @@ void Player::update(const GameState& gameState, float dt)
 {
 	updateVel(dt);
 	updateRot(dt);
+	updateCollisions(gameState);
 }
 
-void Player::draw()
+void Player::draw(const GameState& gameState, const GameCamera& camera) const
 {
+	const Vec2 screenPos = camera.getScreenPos(gameState, pos);
+
 	const Rectangle sourceRec =
 	{
 		0, 0,
@@ -32,11 +36,26 @@ void Player::draw()
 	};
 	const Rectangle destRec =
 	{
-		(float)pos.x, (float)pos.y,
-		(float)shipTex.width * 2, (float)shipTex.height * 2
+		(float)screenPos.x, (float)screenPos.y,
+		(float)shipTex.width * playerScale * camera.getZoom(), (float)shipTex.height * playerScale * camera.getZoom()
 	};
 
 	DrawTexturePro(shipTex, sourceRec, destRec, { destRec.width / 2, destRec.height / 2 }, rot * RAD2DEG, WHITE);
+}
+
+Vec2 Player::getPos() const
+{
+	return pos;
+}
+
+Vec2 Player::getVel() const
+{
+	return vel;
+}
+
+float Player::getVelRatio() const
+{
+	return vel.mag() / maxSpeed;
 }
 
 void Player::updateVel(float dt)
@@ -62,11 +81,6 @@ static float lerpAngle(float a, float b, float t)
 	return a + shortestDist * t;
 }
 
-static float lerp(float a, float b, float t)
-{
-	return (1 - t) * a + t * b;
-}
-
 void Player::updateRot(float dt)
 {
 	float targetRotVel = 0.0f;
@@ -80,7 +94,23 @@ void Player::updateRot(float dt)
 	rot += rotVel * dt;
 }
 
-Vec2 Player::getDir()
+void Player::updateCollisions(const GameState& gameState)
+{
+	if (pos.sqrMag() > gameState.borderRadius * gameState.borderRadius)
+	{
+		Vec2 normal = pos.norm();
+
+		while (pos.sqrMag() > gameState.borderRadius * gameState.borderRadius)
+			pos -= normal;
+
+		float inComp = vel.dot(normal); // Component into border.
+
+		vel -= normal * inComp; // Cancel that component.
+		vel -= normal * inComp * collisionDamping; // Then bounce back with damping.
+	}
+}
+
+Vec2 Player::getDir() const
 {
 	return frontDir.rotate(rot);
 }
