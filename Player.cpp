@@ -1,3 +1,4 @@
+#include "Bullet.hpp"
 #include "Player.hpp"
 
 static constexpr Vec2 frontDir = { 0.0f, -1.0f }; // The direction the player faces before any rotation is applied.

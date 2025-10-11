@@ -22,7 +22,9 @@ void Game::init()
 
 	borderTex = LoadTexture("assets/border.png");
 
-	loadLevel("purp", 1000.0f);
+	enemies.push_back(new TestEnemy(Vec2(100, 0)));
+
+	loadLevel("purp", 2000.0f);
 }
 
 void Game::run()
@@ -68,7 +70,18 @@ void Game::update()
 	const float dt = GetFrameTime();
 
 	player.update(gameState, dt);
+	updateEnemies(dt);
 	camera.update(player.getPos(), player.getVel(), player.getVelRatio(), dt);
+}
+
+void Game::updateEnemies(float dt)
+{
+	for (auto enemy = enemies.begin(); enemy != enemies.end(); )
+	{
+		(*enemy)->update(gameState, player, dt);
+
+		++enemy;
+	}
 }
 
 void Game::draw() const
@@ -77,6 +90,9 @@ void Game::draw() const
 
 	ClearBackground(BLACK);
 	drawBg();
+
+	for (auto enemy : enemies)
+		enemy->draw(camera, gameState);
 
 	player.draw(gameState, camera);
 

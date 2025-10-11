@@ -1,9 +1,11 @@
 #pragma once
 
 #include "common.hpp"
+#include "enemies.hpp"
 #include "GameState.hpp"
 #include "Player.hpp"
 #include <string>
+#include <vector>
 
 class Game
 {
@@ -20,10 +22,15 @@ private:
 	Texture2D bgTex;
 	Texture2D borderTex;
 
+	std::vector<Enemy*> enemies;
+
 	void loadLevel(const std::string& bgType, float borderRadius);
 	void loadBg(const std::string& bgType, int maxNum);
 
 	void update();
+
+	void updateEnemies(float dt);
+
 	void draw() const;
 
 	void drawBg() const;

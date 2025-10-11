@@ -6,3 +6,4 @@
 #include "Vec2.hpp"
 
 float lerp(float a, float b, float t);
+Vec2 randPointInCircle(float radius);
