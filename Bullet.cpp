@@ -1,32 +1,10 @@
 #include "Bullet.hpp"
 
-Bullet::Bullet(Vec2 pos, Vec2 vel, float homingStrength, float homingDistance, bool homesOnEnemies, const Texture2D& tex)
-	: pos(pos), vel(vel), homingStrength(homingStrength), homingDistance(homingDistance),
-	homesOnEnemies(homesOnEnemies), tex(tex) { }
+Bullet::Bullet(Vec2 pos, Vec2 vel, float damage, float recoil, int pierceLimit, float spriteScale, const Texture2D& tex)
+	: pos(pos), vel(vel), damage(damage), recoil(recoil), pierceLimit(pierceLimit), spriteScale(spriteScale), tex(tex) { }
 
 void Bullet::update(const std::vector<Enemy*>& enemies, const Player& player, float dt)
 {
-	if (homesOnEnemies)
-	{
-		for (auto enemy : enemies)
-		{
-			Vec2 rel = enemy->getPos();
-			
-			if (rel.sqrMag() < homingDistance * homingDistance)
-			{
-				vel = vel.lerp(rel.norm() * vel.mag(), homingStrength * dt);
-				break;
-			}
-		}
-	}
-	else
-	{
-		Vec2 rel = player.getPos();
-
-		if (rel.sqrMag() < homingDistance * homingDistance)
-			vel = vel.lerp(rel.norm() * vel.mag(), homingStrength * dt);
-	}
-
 	pos += vel * dt;
 }
 
@@ -42,7 +20,7 @@ void Bullet::draw(const GameState& gameState, const GameCamera& camera) const
 	const Rectangle destRec =
 	{
 		screenPos.x, screenPos.y,
-		(float)tex.width * camera.getZoom(), (float)tex.height * camera.getZoom()
+		(float)tex.width * camera.getZoom() * spriteScale, (float)tex.height * camera.getZoom() * spriteScale
 	};
 
 	const float rot = vel.angle() * RAD2DEG;
@@ -53,4 +31,40 @@ void Bullet::draw(const GameState& gameState, const GameCamera& camera) const
 Vec2 Bullet::getPos() const
 {
 	return pos;
+}
+
+float Bullet::getRecoil() const
+{
+	return recoil;
+}
+
+float Bullet::getSize() const
+{
+	return tex.width * spriteScale;
+}
+
+int Bullet::getPierceLimit() const
+{
+	return pierceLimit;
+}
+
+void Bullet::setPos(Vec2 pos)
+{
+	this->pos = pos;
+}
+
+void Bullet::setVel(Vec2 vel)
+{
+	this->vel = vel;
+}
+
+void Bullet::addHitEnemy(Enemy* enemy)
+{
+	enemiesHit.insert(enemy);
+	--pierceLimit;
+}
+
+bool Bullet::alreadyHit(Enemy* enemy) const
+{
+	return enemiesHit.contains(enemy);
 }

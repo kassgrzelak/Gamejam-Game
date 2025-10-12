@@ -4,25 +4,29 @@
 #include "GameState.hpp"
 #include "Player.hpp"
 
+class Bullet;
+
 class Enemy
 {
 public:
-	Enemy(Vec2 pos, float health, const Texture2D& tex, float spriteScale);
+	Enemy(Vec2 pos, float health, float damage, float spriteScale, const Texture2D& tex);
 	~Enemy() = default;
 
 	virtual void update(const GameState& gameState, const Player& player, float dt) = 0;
 
-	void draw(const GameCamera& camera, const GameState& gameState) const;
+	void draw(const GameState& gameState, const GameCamera& camera) const;
 
 	Vec2 getPos() const;
 
 	bool collidesWithPlayer(const Player& player) const;
+	bool collidesWithBullet(const Bullet& bullet) const;
 
 protected:
 	Vec2 pos;
 	Vec2 vel = Vec2::zero();
 
 	float health;
+	float damage;
 
 	const Texture2D& tex;
 	float spriteScale;

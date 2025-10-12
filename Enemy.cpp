@@ -1,9 +1,10 @@
+#include "Bullet.hpp"
 #include "Enemy.hpp"
 
-Enemy::Enemy(Vec2 pos, float health, const Texture2D& tex, float spriteScale)
-	: pos(pos), health(health), tex(tex), spriteScale(spriteScale) { }
+Enemy::Enemy(Vec2 pos, float health, float damage, float spriteScale, const Texture2D& tex)
+	: pos(pos), health(health), damage(damage), spriteScale(spriteScale), tex(tex) { }
 
-void Enemy::draw(const GameCamera& camera, const GameState& gameState) const
+void Enemy::draw(const GameState& gameState, const GameCamera& camera) const
 {
 	const Vec2 screenPos = camera.getScreenPos(gameState, pos);
 
@@ -31,4 +32,9 @@ Vec2 Enemy::getPos() const
 bool Enemy::collidesWithPlayer(const Player& player) const
 {
 	return CheckCollisionCircles(pos, tex.width / 2.0f, player.getPos(), player.getSize() / 2);
+}
+
+bool Enemy::collidesWithBullet(const Bullet& bullet) const
+{
+	return CheckCollisionCircles(pos, tex.width / 2.0f, bullet.getPos(), bullet.getSize() / 2);
 }

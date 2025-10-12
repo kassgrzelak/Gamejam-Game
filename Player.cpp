@@ -16,7 +16,7 @@ static constexpr float playerScale = 1.0f;
 
 void Player::init()
 {
-	shipTex = LoadTexture("assets/ship.png");
+	shipTex = LoadTexture("assets/sprites/ship.png");
 }
 
 void Player::update(const GameState& gameState, float dt)
@@ -54,6 +54,16 @@ Vec2 Player::getVel() const
 	return vel;
 }
 
+float Player::getRot() const
+{
+	return rot;
+}
+
+Vec2 Player::getTipPos() const
+{
+	return pos + Vec2(0, shipTex.width * playerScale / 2.0f).rotate(rot);
+}
+
 float Player::getVelRatio() const
 {
 	return vel.mag() / maxSpeed;
@@ -62,6 +72,11 @@ float Player::getVelRatio() const
 float Player::getSize() const
 {
 	return shipTex.width * playerScale;
+}
+
+void Player::setVel(Vec2 vel)
+{
+	this->vel = vel;
 }
 
 void Player::updateVel(float dt)

@@ -28,6 +28,12 @@
     <Filter Include="Source Files\Libs\rand">
       <UniqueIdentifier>{45c57016-c726-484c-93e9-a6d250699f44}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\assets\sprites">
+      <UniqueIdentifier>{5ee7f055-6a6e-442c-820e-91b2f9be11e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\assets\sfx">
+      <UniqueIdentifier>{3ce0c02b-9810-48f9-a6ce-210c12803561}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -64,6 +70,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="enemies.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -107,76 +116,87 @@
     <ClInclude Include="enemies.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Weapon.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="credits.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\blue1.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\blue1.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\blue2.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\blue2.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\blue3.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\blue3.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\blue4.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\blue4.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\blue5.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\blue5.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\green1.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\border.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\green2.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\dog.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\green3.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\green1.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\green4.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\green2.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\green5.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\green3.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\purp1.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\green4.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\purp2.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\green5.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\purp3.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\purp1.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\purp4.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\purp2.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\purp5.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\purp3.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\star1.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\purp4.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\star2.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\purp5.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\star3.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\ship.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\star4.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\star1.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\star5.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\star2.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\ship.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\star3.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
-    <Image Include="assets\dog.png">
-      <Filter>Source Files\assets</Filter>
+    <Image Include="assets\sprites\star4.png">
+      <Filter>Source Files\assets\sprites</Filter>
     </Image>
+    <Image Include="assets\sprites\star5.png">
+      <Filter>Source Files\assets\sprites</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\sfx\testSound.wav">
+      <Filter>Source Files\assets\sfx</Filter>
+    </Media>
   </ItemGroup>
 </Project>

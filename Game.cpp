@@ -8,6 +8,7 @@ void Game::init()
 	initRand();
 
 	InitWindow(1920, 1080, "Gamejam Game");
+	InitAudioDevice();
 	ToggleBorderlessWindowed();
 
 	const int monitor = GetCurrentMonitor();
@@ -20,9 +21,16 @@ void Game::init()
 	player.init();
 	camera.init();
 
-	borderTex = LoadTexture("assets/border.png");
+	borderTex = LoadTexture("assets/sprites/border.png");
 
-	testEnemyTex = LoadTexture("assets/dog.png");
+	testSound = LoadSound("assets/sfx/testSound.wav");
+
+	testBulletTex = LoadTexture("assets/sprites/dog.png");
+
+	weapons.push_back(Weapon("test weapon", 100, 1000, 0.1, 1, 0.0f,
+		Bullet(Vec2::zero(), Vec2::zero(), 10, 100, true, 0.5f, testBulletTex), testSound));
+
+	testEnemyTex = LoadTexture("assets/sprites/dog.png");
 
 	enemies.push_back(new TestEnemy(Vec2(100, 0), testEnemyTex));
 
@@ -62,18 +70,49 @@ void Game::loadLevel(const std::string& bgType, float borderRadius)
 void Game::loadBg(const std::string& bgType, int maxNum)
 {
 	const int num = randInt(1, maxNum);
-	std::string path = "assets/" + bgType + std::to_string(num) + ".png";
+	std::string path = "assets/sprites/" + bgType + std::to_string(num) + ".png";
 
 	bgTex = LoadTexture(path.c_str());
 }
 
+Weapon& Game::getCurrentWeapon()
+{
+	return weapons[weaponIndex];
+}
+
+void Game::nextWeapon()
+{
+	++weaponIndex;
+	weaponIndex %= weapons.size();
+}
+
+void Game::prevWeapon()
+{
+	--weaponIndex;
+	weaponIndex %= weapons.size();
+}
+
 void Game::update()
 {
+	gameState.time = GetTime();
 	const float dt = GetFrameTime();
+
+	keyInput();
 
 	player.update(gameState, dt);
 	updateEnemies(dt);
+	updatePlayerMadeBullets(dt);
+	updateEnemyMadeBullets(dt);
 	camera.update(player.getPos(), player.getVel(), player.getVelRatio(), dt);
+}
+
+void Game::keyInput()
+{
+	if (IsKeyDown(KEY_SPACE))
+	{
+		std::vector<Bullet> bullets = getCurrentWeapon().fire(gameState, player);
+		playerMadeBullets.insert(playerMadeBullets.end(), bullets.begin(), bullets.end());
+	}
 }
 
 void Game::updateEnemies(float dt)
@@ -86,6 +125,45 @@ void Game::updateEnemies(float dt)
 	}
 }
 
+void Game::updatePlayerMadeBullets(float dt)
+{
+	for (auto bullet = playerMadeBullets.begin(); bullet != playerMadeBullets.end(); )
+	{
+		if (bullet->getPierceLimit() < 1)
+		{
+			bullet = playerMadeBullets.erase(bullet);
+			continue;
+		}
+
+		bullet->update(enemies, player, dt);
+
+		for (auto enemy : enemies)
+			if (!bullet->alreadyHit(enemy) && enemy->collidesWithBullet(*bullet))
+			{
+				bullet->addHitEnemy(enemy);
+				// subtract health
+			}
+
+		if (bullet->getPos().sqrMag() > gameState.borderRadius * gameState.borderRadius)
+			bullet = playerMadeBullets.erase(bullet);
+		else
+			++bullet;
+	}
+}
+
+void Game::updateEnemyMadeBullets(float dt)
+{
+	for (auto bullet = enemyMadeBullets.begin(); bullet != enemyMadeBullets.end(); )
+	{
+		bullet->update(enemies, player, dt);
+
+		if (bullet->getPos().sqrMag() > gameState.borderRadius * gameState.borderRadius)
+			bullet = enemyMadeBullets.erase(bullet);
+		else
+			++bullet;
+	}
+}
+
 void Game::draw() const
 {
 	BeginDrawing();
@@ -94,9 +172,14 @@ void Game::draw() const
 	drawBg();
 
 	for (auto enemy : enemies)
-		enemy->draw(camera, gameState);
+		enemy->draw(gameState, camera);
 
 	player.draw(gameState, camera);
+
+	for (auto& bullet : playerMadeBullets)
+		bullet.draw(gameState, camera);
+	for (auto& bullet : enemyMadeBullets)
+		bullet.draw(gameState, camera);
 
 	drawBorder();
 
