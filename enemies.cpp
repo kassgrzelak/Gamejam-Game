@@ -1,9 +1,18 @@
 #include "enemies.hpp"
 
-TestEnemy::TestEnemy(Vec2 pos)
-	: Enemy(pos, 100, "assets/ship.png") { }
+TestEnemy::TestEnemy(Vec2 pos, const Texture2D& tex)
+	: Enemy(pos, 100.0f, tex, 2.0f) { }
 
 void TestEnemy::update(const GameState& gameState, const Player& player, float dt)
 {
-	pos += Vec2(100, 0) * dt;
+	Vec2 dirToPlayer = player.getPos() - pos;
+
+	if (dirToPlayer != Vec2::zero())
+	{
+		Vec2 targetVel = dirToPlayer.norm() * 500.0f;
+
+		vel = vel.lerp(targetVel, 3.0f * dt);
+
+		pos += vel * dt;
+	}
 }

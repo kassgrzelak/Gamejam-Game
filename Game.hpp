@@ -22,6 +22,8 @@ private:
 	Texture2D bgTex;
 	Texture2D borderTex;
 
+	Texture2D testEnemyTex;
+
 	std::vector<Enemy*> enemies;
 
 	void loadLevel(const std::string& bgType, float borderRadius);

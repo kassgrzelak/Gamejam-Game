@@ -5,7 +5,7 @@
 class TestEnemy : public Enemy
 {
 public:
-	TestEnemy(Vec2 pos);
+	TestEnemy(Vec2 pos, const Texture2D& tex);
 
 	void update(const GameState& gameState, const Player& player, float dt) override;
 };

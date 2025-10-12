@@ -15,6 +15,7 @@ public:
 	Vec2 getPos() const;
 	Vec2 getVel() const;
 	float getVelRatio() const;
+	float getSize() const;
 
 private:
 	Vec2 pos = Vec2::zero();

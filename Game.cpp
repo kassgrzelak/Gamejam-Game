@@ -22,7 +22,9 @@ void Game::init()
 
 	borderTex = LoadTexture("assets/border.png");
 
-	enemies.push_back(new TestEnemy(Vec2(100, 0)));
+	testEnemyTex = LoadTexture("assets/dog.png");
+
+	enemies.push_back(new TestEnemy(Vec2(100, 0), testEnemyTex));
 
 	loadLevel("purp", 2000.0f);
 }

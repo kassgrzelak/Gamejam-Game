@@ -7,7 +7,7 @@ static constexpr float maxSpeed = 1200.0f;
 static constexpr float normalAccel = 2.0f;
 static constexpr float overspeedAccel = 40.0f;
 
-static constexpr float rotSpeed = 5.0f;
+static constexpr float rotSpeed = 7.0f;
 static constexpr float rotAccel = 5.0f;
 
 static constexpr float collisionDamping = 0.6f;
@@ -57,6 +57,11 @@ Vec2 Player::getVel() const
 float Player::getVelRatio() const
 {
 	return vel.mag() / maxSpeed;
+}
+
+float Player::getSize() const
+{
+	return shipTex.width * playerScale;
 }
 
 void Player::updateVel(float dt)

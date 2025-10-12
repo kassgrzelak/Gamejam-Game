@@ -176,6 +176,7 @@
     <Image Include="assets\blue3.png" />
     <Image Include="assets\blue4.png" />
     <Image Include="assets\blue5.png" />
+    <Image Include="assets\dog.png" />
     <Image Include="assets\green1.png" />
     <Image Include="assets\green2.png" />
     <Image Include="assets\green3.png" />

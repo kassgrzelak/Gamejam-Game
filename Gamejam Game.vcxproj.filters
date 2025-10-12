@@ -175,5 +175,8 @@
     <Image Include="assets\ship.png">
       <Filter>Source Files\assets</Filter>
     </Image>
+    <Image Include="assets\dog.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
   </ItemGroup>
 </Project>
