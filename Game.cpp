@@ -9,7 +9,6 @@ void Game::init()
 
 	InitWindow(0, 0, "Gamejam Game");
 	InitAudioDevice();
-	//ToggleBorderlessWindowed();
 	ToggleFullscreen();
 	DisableCursor();
 
@@ -29,8 +28,14 @@ void Game::init()
 
 	testBulletTex = LoadTexture("assets/sprites/dog.png");
 
-	weapons.push_back(Weapon("test weapon", 100, 1000, 0.1, 1, 0.0f,
-		Bullet(Vec2::zero(), Vec2::zero(), 10, 100, true, 0.5f, testBulletTex), testSound));
+	weapons.push_back(Weapon("test weapon 1", 100, 1000, 0.1, 1, 0.0f,
+		Bullet(Vec2::zero(), Vec2::zero(), 10, 100, 1, 0.5f, testBulletTex), testSound));
+
+	weapons.push_back(Weapon("test weapon 2", 100, 1500, 0.8, 5, 0.4f,
+		Bullet(Vec2::zero(), Vec2::zero(), 3, 500, 3, 0.5f, testBulletTex), testSound));
+
+	weapons.push_back(Weapon("test weapon 3", 100, 5000, 1.4, 1, 0.0f,
+		Bullet(Vec2::zero(), Vec2::zero(), 50, 1000, 5, 0.5f, testBulletTex), testSound));
 
 	testEnemyTex = LoadTexture("assets/sprites/dog.png");
 
@@ -91,6 +96,10 @@ void Game::nextWeapon()
 void Game::prevWeapon()
 {
 	--weaponIndex;
+
+	if (weaponIndex == -1)
+		weaponIndex = weapons.size() - 1;
+
 	weaponIndex %= weapons.size();
 }
 
@@ -112,7 +121,7 @@ void Game::update()
 
 void Game::keyInput()
 {
-	if (IsKeyDown(KEY_SPACE) || IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+	if (!player.isDead() && (IsKeyDown(KEY_SPACE) || IsMouseButtonDown(MOUSE_BUTTON_LEFT)))
 	{
 		std::vector<Bullet> bullets = getCurrentWeapon().fire(gameState, player);
 		playerMadeBullets.insert(playerMadeBullets.end(), bullets.begin(), bullets.end());

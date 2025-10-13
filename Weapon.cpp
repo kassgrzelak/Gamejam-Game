@@ -9,7 +9,7 @@ std::vector<Bullet> Weapon::fire(const GameState& gameState, Player& player)
 	if (gameState.time - timeOfLastShot < fireTime || ammo == 0) return {};
 
 	const Vec2 oldPlayerVel = player.getVel();
-	//player.setVel(oldPlayerVel + Vec2(0, bullet.getRecoil()).rotate(player.getRot()));
+	player.setVel(oldPlayerVel + Vec2(0, bullet.getRecoil()).rotate(player.getRot()));
 
 	PlaySound(fireSound);
 	--ammo;

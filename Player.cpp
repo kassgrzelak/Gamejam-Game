@@ -108,7 +108,7 @@ void Player::updateVel(float dt)
 {
 	Vec2 targetVel = Vec2::zero();
 
-	if (IsKeyDown(KEY_W) || IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	if (IsKeyDown(KEY_W) || IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 	{
 		targetVel = getDir() * maxSpeed;
 	}
