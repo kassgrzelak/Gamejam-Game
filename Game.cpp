@@ -90,7 +90,7 @@ Weapon& Game::getCurrentWeapon()
 void Game::nextWeapon()
 {
 	++weaponIndex;
-	weaponIndex %= weapons.size(); //
+	weaponIndex %= weapons.size();
 }
 
 void Game::prevWeapon()
