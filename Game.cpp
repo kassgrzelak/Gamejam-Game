@@ -116,7 +116,7 @@ void Game::update()
 	updateEnemies(dt);
 	updatePlayerMadeBullets(dt);
 	updateEnemyMadeBullets(dt);
-	camera.update(player.getPos(), player.getVel(), player.getVelRatio(), dt); //
+	camera.update(player.getPos(), player.getVel(), player.getVelRatio(), dt);
 }
 
 void Game::keyInput()
