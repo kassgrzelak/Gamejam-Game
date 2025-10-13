@@ -16,6 +16,8 @@ public:
 	void draw(const GameState& gameState, const GameCamera& camera) const;
 
 	Vec2 getPos() const;
+	Vec2 getVel() const;
+	float getDamage() const;
 	float getRecoil() const;
 	float getSize() const;
 	int getPierceLimit() const;

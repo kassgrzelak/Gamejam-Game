@@ -7,9 +7,11 @@ void Game::init()
 {
 	initRand();
 
-	InitWindow(1920, 1080, "Gamejam Game");
+	InitWindow(0, 0, "Gamejam Game");
 	InitAudioDevice();
-	ToggleBorderlessWindowed();
+	//ToggleBorderlessWindowed();
+	ToggleFullscreen();
+	DisableCursor();
 
 	const int monitor = GetCurrentMonitor();
 
@@ -32,7 +34,7 @@ void Game::init()
 
 	testEnemyTex = LoadTexture("assets/sprites/dog.png");
 
-	enemies.push_back(new TestEnemy(Vec2(100, 0), testEnemyTex));
+	enemies.push_back(new TestEnemy(Vec2(1000, 0), testEnemyTex));
 
 	loadLevel("purp", 2000.0f);
 }
@@ -99,7 +101,9 @@ void Game::update()
 
 	keyInput();
 
-	player.update(gameState, dt);
+	if (!player.isDead())
+		player.update(gameState, dt);
+
 	updateEnemies(dt);
 	updatePlayerMadeBullets(dt);
 	updateEnemyMadeBullets(dt);
@@ -108,18 +112,32 @@ void Game::update()
 
 void Game::keyInput()
 {
-	if (IsKeyDown(KEY_SPACE))
+	if (IsKeyDown(KEY_SPACE) || IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 	{
 		std::vector<Bullet> bullets = getCurrentWeapon().fire(gameState, player);
 		playerMadeBullets.insert(playerMadeBullets.end(), bullets.begin(), bullets.end());
 	}
+
+	if (GetMouseWheelMoveV().y < 0 || IsKeyPressed(KEY_Q))
+		prevWeapon();
+	else if (GetMouseWheelMoveV().y > 0 || IsKeyPressed(KEY_E))
+		nextWeapon();
 }
 
 void Game::updateEnemies(float dt)
 {
 	for (auto enemy = enemies.begin(); enemy != enemies.end(); )
 	{
+		if ((*enemy)->getHealth() <= 0)
+		{
+			enemy = enemies.erase(enemy);
+			continue;
+		}
+
 		(*enemy)->update(gameState, player, dt);
+
+		if (!player.isDead() && (*enemy)->collidesWithPlayer(player))
+			player.hit(gameState, *enemy);
 
 		++enemy;
 	}
@@ -135,19 +153,23 @@ void Game::updatePlayerMadeBullets(float dt)
 			continue;
 		}
 
+		if (bullet->getPos().sqrMag() > gameState.borderRadius * gameState.borderRadius)
+		{
+			bullet = playerMadeBullets.erase(bullet);
+			continue;
+		}
+
 		bullet->update(enemies, player, dt);
 
 		for (auto enemy : enemies)
 			if (!bullet->alreadyHit(enemy) && enemy->collidesWithBullet(*bullet))
 			{
 				bullet->addHitEnemy(enemy);
-				// subtract health
+				enemy->hit(gameState, *bullet);
+				break;
 			}
 
-		if (bullet->getPos().sqrMag() > gameState.borderRadius * gameState.borderRadius)
-			bullet = playerMadeBullets.erase(bullet);
-		else
-			++bullet;
+		++bullet;
 	}
 }
 
@@ -182,6 +204,9 @@ void Game::draw() const
 		bullet.draw(gameState, camera);
 
 	drawBorder();
+
+	if (player.isDead())
+		DrawText("YOU DIED", gameState.getScreenCenter().x - MeasureText("YOU DIED", 100) / 2, gameState.getScreenCenter().y - 50, 100, RED);
 
 	EndDrawing();
 }

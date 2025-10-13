@@ -17,6 +17,10 @@ public:
 	void draw(const GameState& gameState, const GameCamera& camera) const;
 
 	Vec2 getPos() const;
+	float getHealth() const;
+	float getDamage() const;
+
+	void hit(const GameState& gameState, const Bullet& bullet);
 
 	bool collidesWithPlayer(const Player& player) const;
 	bool collidesWithBullet(const Bullet& bullet) const;
@@ -30,4 +34,6 @@ protected:
 
 	const Texture2D& tex;
 	float spriteScale;
+
+	double timeOfLastHit = -999;
 };

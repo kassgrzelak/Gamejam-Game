@@ -1,4 +1,5 @@
 #include "Bullet.hpp"
+#include "Enemy.hpp"
 #include "Player.hpp"
 
 static constexpr Vec2 frontDir = { 0.0f, -1.0f }; // The direction the player faces before any rotation is applied.
@@ -7,12 +8,15 @@ static constexpr float maxSpeed = 1200.0f;
 static constexpr float normalAccel = 2.0f;
 static constexpr float overspeedAccel = 40.0f;
 
-static constexpr float rotSpeed = 7.0f;
-static constexpr float rotAccel = 5.0f;
+static constexpr float rotSpeed = 10.0f;
+static constexpr float rotAccel = 10.0f;
 
 static constexpr float collisionDamping = 0.6f;
 
 static constexpr float playerScale = 1.0f;
+
+static constexpr double hurtFlashLength = 0.1;
+static constexpr double invincibilityLength = 0.25;
 
 void Player::init()
 {
@@ -41,7 +45,23 @@ void Player::draw(const GameState& gameState, const GameCamera& camera) const
 		(float)shipTex.width * playerScale * camera.getZoom(), (float)shipTex.height * playerScale * camera.getZoom()
 	};
 
-	DrawTexturePro(shipTex, sourceRec, destRec, { destRec.width / 2, destRec.height / 2 }, rot * RAD2DEG, WHITE);
+	unsigned char whiteness = (unsigned char)clamp((gameState.time - timeOfLastHit) / hurtFlashLength * 255, 0.0, 255.0);
+	
+	if (isDead())
+		whiteness = 0;
+
+	Color tint = { 255, whiteness, whiteness, 255 };
+
+	DrawTexturePro(shipTex, sourceRec, destRec, { destRec.width / 2, destRec.height / 2 }, rot * RAD2DEG, tint);
+}
+
+void Player::hit(const GameState& gameState, Enemy* enemy)
+{
+	if (gameState.time - timeOfLastHit < invincibilityLength)
+		return;
+
+	timeOfLastHit = gameState.time;
+	health -= enemy->getDamage();
 }
 
 Vec2 Player::getPos() const
@@ -61,7 +81,7 @@ float Player::getRot() const
 
 Vec2 Player::getTipPos() const
 {
-	return pos + Vec2(0, shipTex.width * playerScale / 2.0f).rotate(rot);
+	return pos + Vec2(0, -shipTex.width * playerScale / 2.0f).rotate(rot);
 }
 
 float Player::getVelRatio() const
@@ -74,6 +94,11 @@ float Player::getSize() const
 	return shipTex.width * playerScale;
 }
 
+bool Player::isDead() const
+{
+	return health <= 0;
+}
+
 void Player::setVel(Vec2 vel)
 {
 	this->vel = vel;
@@ -83,7 +108,7 @@ void Player::updateVel(float dt)
 {
 	Vec2 targetVel = Vec2::zero();
 
-	if (IsKeyDown(KEY_W))
+	if (IsKeyDown(KEY_W) || IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
 		targetVel = getDir() * maxSpeed;
 	}
@@ -110,6 +135,11 @@ void Player::updateRot(float dt)
 		targetRotVel -= rotSpeed;
 	else if (IsKeyDown(KEY_D))
 		targetRotVel += rotSpeed;
+	else
+	{
+		Vec2 mouseDelta = GetMouseDelta();
+		targetRotVel = mouseDelta.x * rotSpeed;
+	}
 
 	rotVel = lerp(rotVel, targetRotVel, rotAccel * dt);
 	rot += rotVel * dt;

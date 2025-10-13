@@ -33,6 +33,16 @@ Vec2 Bullet::getPos() const
 	return pos;
 }
 
+Vec2 Bullet::getVel() const
+{
+	return vel;
+}
+
+float Bullet::getDamage() const
+{
+	return damage;
+}
+
 float Bullet::getRecoil() const
 {
 	return recoil;
