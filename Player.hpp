@@ -4,6 +4,7 @@
 #include "GameCamera.hpp"
 #include "GameState.hpp"
 
+class Bullet;
 class Enemy;
 
 class Player
@@ -15,6 +16,7 @@ public:
 	void draw(const GameState& gameState, const GameCamera& camera) const;
 
 	void hit(const GameState& gameState, Enemy* enemy);
+	void hit(const GameState& gameState, const Bullet& bullet);
 
 	Vec2 getPos() const;
 	Vec2 getVel() const;
@@ -24,6 +26,7 @@ public:
 	float getSize() const;
 
 	bool isDead() const;
+	bool collidesWithBullet(const Bullet& bullet) const;
 
 	void setVel(Vec2 vel);
 

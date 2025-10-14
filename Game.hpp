@@ -26,7 +26,7 @@ private:
 	Sound testSound;
 
 	std::vector<Weapon> weapons;
-	int weaponIndex = 0;
+	size_t weaponIndex = 0;
 
 	Texture2D testBulletTex;
 

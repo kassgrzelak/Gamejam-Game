@@ -1,4 +1,5 @@
 #include "Bullet.hpp"
+#include "Bullet.hpp"
 #include "Enemy.hpp"
 #include "Player.hpp"
 
@@ -64,6 +65,16 @@ void Player::hit(const GameState& gameState, Enemy* enemy)
 	health -= enemy->getDamage();
 }
 
+void Player::hit(const GameState& gameState, const Bullet& bullet)
+{
+	if (gameState.time - timeOfLastHit < invincibilityLength)
+		return;
+
+	timeOfLastHit = gameState.time;
+	health -= bullet.getDamage();
+	vel += (bullet.getVel() - vel).norm() * bullet.getRecoil();
+}
+
 Vec2 Player::getPos() const
 {
 	return pos;
@@ -97,6 +108,11 @@ float Player::getSize() const
 bool Player::isDead() const
 {
 	return health <= 0;
+}
+
+bool Player::collidesWithBullet(const Bullet& bullet) const
+{
+	return CheckCollisionCircles(pos, shipTex.width * playerScale / 2.0f, bullet.getPos(), bullet.getSize() / 2);
 }
 
 void Player::setVel(Vec2 vel)

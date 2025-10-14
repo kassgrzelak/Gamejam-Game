@@ -1,9 +1,13 @@
+#include "Bullet.hpp"
 #include "enemies.hpp"
 
 TestEnemy::TestEnemy(Vec2 pos, const Texture2D& tex)
-	: Enemy(pos, 1000.0f, 10.0f, 2.0f, tex) { }
+	: Enemy(pos, 1000.0f, 10.0f, 2.0f, tex)
+{
+	bulletTex = LoadTexture("assets/sprites/dog.png");
+}
 
-void TestEnemy::update(const GameState& gameState, const Player& player, float dt)
+std::vector<Bullet> TestEnemy::update(const GameState& gameState, const Player& player, float dt)
 {
 	Vec2 dirToPlayer = player.getPos() - pos;
 
@@ -15,4 +19,14 @@ void TestEnemy::update(const GameState& gameState, const Player& player, float d
 
 		pos += vel * dt;
 	}
+
+	if (gameState.time - timeOfLastShot > 3.0)
+	{
+		Bullet bullet = Bullet(pos, vel + dirToPlayer.norm() * 1000.0f, 10, 100, 1, 0.5f, bulletTex);
+		timeOfLastShot = gameState.time;
+
+		return { bullet };
+	}
+	else
+		return {};
 }

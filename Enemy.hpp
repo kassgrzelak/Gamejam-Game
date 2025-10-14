@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "GameState.hpp"
 #include "Player.hpp"
+#include <vector>
 
 class Bullet;
 
@@ -12,7 +13,7 @@ public:
 	Enemy(Vec2 pos, float health, float damage, float spriteScale, const Texture2D& tex);
 	~Enemy() = default;
 
-	virtual void update(const GameState& gameState, const Player& player, float dt) = 0;
+	virtual std::vector<Bullet> update(const GameState& gameState, const Player& player, float dt) = 0;
 
 	void draw(const GameState& gameState, const GameCamera& camera) const;
 
@@ -36,4 +37,5 @@ protected:
 	float spriteScale;
 
 	double timeOfLastHit = -999;
+	double timeOfLastShot = 0;
 };

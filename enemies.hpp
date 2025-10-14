@@ -7,5 +7,8 @@ class TestEnemy : public Enemy
 public:
 	TestEnemy(Vec2 pos, const Texture2D& tex);
 
-	void update(const GameState& gameState, const Player& player, float dt) override;
+	std::vector<Bullet> update(const GameState& gameState, const Player& player, float dt) override;
+
+private:
+	Texture2D bulletTex;
 };

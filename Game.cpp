@@ -143,7 +143,8 @@ void Game::updateEnemies(float dt)
 			continue;
 		}
 
-		(*enemy)->update(gameState, player, dt);
+		std::vector<Bullet> bullets = (*enemy)->update(gameState, player, dt);
+		enemyMadeBullets.insert(enemyMadeBullets.end(), bullets.begin(), bullets.end());
 
 		if (!player.isDead() && (*enemy)->collidesWithPlayer(player))
 			player.hit(gameState, *enemy);
@@ -186,12 +187,22 @@ void Game::updateEnemyMadeBullets(float dt)
 {
 	for (auto bullet = enemyMadeBullets.begin(); bullet != enemyMadeBullets.end(); )
 	{
+		if (bullet->getPos().sqrMag() > gameState.borderRadius * gameState.borderRadius)
+		{
+			bullet = enemyMadeBullets.erase(bullet);
+			continue;
+		}
+
 		bullet->update(enemies, player, dt);
 
-		if (bullet->getPos().sqrMag() > gameState.borderRadius * gameState.borderRadius)
+		if (player.collidesWithBullet(*bullet))
+		{
+			player.hit(gameState, *bullet);
 			bullet = enemyMadeBullets.erase(bullet);
-		else
-			++bullet;
+			continue;
+		}
+
+		++bullet;
 	}
 }
 
