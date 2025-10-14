@@ -20,9 +20,9 @@ std::vector<Bullet> TestEnemy::update(const GameState& gameState, const Player& 
 		pos += vel * dt;
 	}
 
-	if (gameState.time - timeOfLastShot > 3.0)
+	if (gameState.time - timeOfLastShot > 1.5)
 	{
-		Bullet bullet = Bullet(pos, vel + dirToPlayer.norm() * 1000.0f, 10, 100, 1, 0.5f, bulletTex);
+		Bullet bullet = Bullet(pos, vel + (player.getPos() + player.getVel() * 2.0f - pos).norm() * 1000.0f, 10, 100, 1, 0.5f, bulletTex);
 		timeOfLastShot = gameState.time;
 
 		return { bullet };

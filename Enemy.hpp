@@ -11,7 +11,7 @@ class Enemy
 {
 public:
 	Enemy(Vec2 pos, float health, float damage, float spriteScale, const Texture2D& tex);
-	~Enemy() = default;
+	~Enemy();
 
 	virtual std::vector<Bullet> update(const GameState& gameState, const Player& player, float dt) = 0;
 
@@ -34,6 +34,7 @@ protected:
 	float damage;
 
 	const Texture2D& tex;
+	Texture2D bulletTex;
 	float spriteScale;
 
 	double timeOfLastHit = -999;

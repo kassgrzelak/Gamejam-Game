@@ -6,6 +6,11 @@ static constexpr double hurtFlashLength = 0.1;
 Enemy::Enemy(Vec2 pos, float health, float damage, float spriteScale, const Texture2D& tex)
 	: pos(pos), health(health), damage(damage), spriteScale(spriteScale), tex(tex) { }
 
+Enemy::~Enemy()
+{
+	UnloadTexture(bulletTex);
+}
+
 void Enemy::draw(const GameState& gameState, const GameCamera& camera) const
 {
 	const Vec2 screenPos = camera.getScreenPos(gameState, pos);
