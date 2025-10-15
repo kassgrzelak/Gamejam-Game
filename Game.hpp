@@ -23,6 +23,11 @@ private:
 	Texture2D bgTex;
 	Texture2D borderTex;
 
+	Texture2D weaponDockTex;
+	Texture2D fireBarTex;
+
+	Texture2D healthDockTex;
+
 	Sound testSound;
 
 	std::vector<Weapon> weapons;
@@ -41,6 +46,7 @@ private:
 	void loadBg(const std::string& bgType, int maxNum);
 
 	Weapon& getCurrentWeapon();
+	const Weapon& getCurrentWeapon() const;
 
 	void nextWeapon();
 	void prevWeapon();
@@ -58,4 +64,12 @@ private:
 
 	void drawBg() const;
 	void drawBorder() const;
+
+	void drawWeaponUI() const;
+	void drawWeaponDock() const;
+	void drawFireBar() const;
+	void drawUIBullet() const;
+
+	void drawHealthUI() const;
+	void drawHealthDock() const;
 };

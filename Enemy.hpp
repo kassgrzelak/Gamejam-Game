@@ -18,6 +18,7 @@ public:
 	void draw(const GameState& gameState, const GameCamera& camera) const;
 
 	Vec2 getPos() const;
+	Vec2 getVel() const;
 	float getHealth() const;
 	float getDamage() const;
 
@@ -35,6 +36,7 @@ protected:
 
 	const Texture2D& tex;
 	Texture2D bulletTex;
+	Sound fireSound;
 	float spriteScale;
 
 	double timeOfLastHit = -999;

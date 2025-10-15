@@ -58,6 +58,11 @@ int Bullet::getPierceLimit() const
 	return pierceLimit;
 }
 
+const Texture2D& Bullet::getTex() const
+{
+	return tex;
+}
+
 void Bullet::setPos(Vec2 pos)
 {
 	this->pos = pos;

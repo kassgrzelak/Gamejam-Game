@@ -2,8 +2,8 @@
 
 static constexpr float speedMult = 8.0f;
 static constexpr float accel = 10.0f;
-static constexpr float slowZoom = 1.5f;
-static constexpr float fastZoom = 0.8f;
+static constexpr float slowZoom = 1.0f;
+static constexpr float fastZoom = 0.5f;
 static constexpr float zoomAccel = 1.0f;
 
 void GameCamera::init()

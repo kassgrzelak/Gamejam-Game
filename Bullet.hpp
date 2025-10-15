@@ -21,6 +21,7 @@ public:
 	float getRecoil() const;
 	float getSize() const;
 	int getPierceLimit() const;
+	const Texture2D& getTex() const;
 
 	void setPos(Vec2 pos);
 	void setVel(Vec2 vel);

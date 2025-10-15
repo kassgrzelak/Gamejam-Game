@@ -14,6 +14,7 @@ public:
 
 	void update(const GameState& gameState, float dt);
 	void draw(const GameState& gameState, const GameCamera& camera) const;
+	void drawHealthUI(const GameState& gameState) const;
 
 	void hit(const GameState& gameState, Enemy* enemy);
 	void hit(const GameState& gameState, const Bullet& bullet);
@@ -24,6 +25,7 @@ public:
 	Vec2 getTipPos() const;
 	float getVelRatio() const;
 	float getSize() const;
+	float getHealthRatio() const;
 
 	bool isDead() const;
 	bool collidesWithBullet(const Bullet& bullet) const;
@@ -36,9 +38,19 @@ private:
 	float rot = 0.0f;
 	float rotVel = 0.0f;
 
-	float health = 100;
+	const float maxHealth = 100;
+	float health = maxHealth;
+
+	Texture2D healthBarTex;
+	Texture2D damageBarTex;
+
+	float getHealthBarX() const;
+
+	float damageBarX = 0;
+	bool damageBarMoving = false;
 
 	double timeOfLastHit = -999;
+	double timeOfDamageBarHit = -999;
 
 	Texture2D shipTex;
 

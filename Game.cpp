@@ -1,7 +1,11 @@
 #include "Game.hpp"
+#include <string>
 
 static constexpr float bgScale = 2.0f;
 static constexpr float parallax = 1.2f;
+
+static constexpr int startupFrames = 20;
+static int startupFrameCounter = 0;
 
 void Game::init()
 {
@@ -24,17 +28,22 @@ void Game::init()
 
 	borderTex = LoadTexture("assets/sprites/border.png");
 
+	weaponDockTex = LoadTexture("assets/sprites/weaponDock.png");
+	fireBarTex = LoadTexture("assets/sprites/fireBar.png");
+
+	healthDockTex = LoadTexture("assets/sprites/healthDock.png");
+
 	testSound = LoadSound("assets/sfx/testSound.wav");
 
 	testBulletTex = LoadTexture("assets/sprites/dog.png");
 
-	weapons.push_back(Weapon("test weapon 1", 100, 1000, 0.1, 1, 0.0f,
+	weapons.push_back(Weapon("AaBbCcPpQqJj", 999, 1000, 0.1, 1, 0.0f,
 		Bullet(Vec2::zero(), Vec2::zero(), 10, 100, 1, 0.5f, testBulletTex), testSound));
 
-	weapons.push_back(Weapon("test weapon 2", 100, 1500, 0.8, 5, 0.4f,
+	weapons.push_back(Weapon("test weapon 2", 999, 1500, 0.8, 5, 0.4f,
 		Bullet(Vec2::zero(), Vec2::zero(), 3, 500, 3, 0.5f, testBulletTex), testSound));
 
-	weapons.push_back(Weapon("test weapon 3", 100, 5000, 1.4, 1, 0.0f,
+	weapons.push_back(Weapon("test weapon 3", 999, 5000, 1.4, 1, 0.0f,
 		Bullet(Vec2::zero(), Vec2::zero(), 50, 1000, 5, 0.5f, testBulletTex), testSound));
 
 	testEnemyTex = LoadTexture("assets/sprites/dog.png");
@@ -48,7 +57,14 @@ void Game::run()
 {
 	while (!WindowShouldClose())
 	{
-		update();
+		if (startupFrameCounter < startupFrames)
+		{
+			++startupFrameCounter;
+			SetWindowFocused();
+		}
+		else
+			update();
+
 		draw();
 	}
 }
@@ -87,6 +103,11 @@ Weapon& Game::getCurrentWeapon()
 	return weapons[weaponIndex];
 }
 
+const Weapon& Game::getCurrentWeapon() const
+{
+	return weapons[weaponIndex];
+}
+
 void Game::nextWeapon()
 {
 	++weaponIndex;
@@ -110,8 +131,7 @@ void Game::update()
 
 	keyInput();
 
-	if (!player.isDead())
-		player.update(gameState, dt);
+	player.update(gameState, dt);
 
 	updateEnemies(dt);
 	updatePlayerMadeBullets(dt);
@@ -225,8 +245,11 @@ void Game::draw() const
 
 	drawBorder();
 
+	drawWeaponUI();
+	drawHealthUI();
+
 	if (player.isDead())
-		DrawText("YOU DIED", gameState.getScreenCenter().x - MeasureText("YOU DIED", 100) / 2, gameState.getScreenCenter().y - 50, 100, RED);
+		DrawText("YOU DIED", (int)(gameState.getScreenCenter().x - MeasureText("YOU DIED", 100) / 2.0f), (int)gameState.getScreenCenter().y - 50, 100, RED);
 
 	EndDrawing();
 }
@@ -261,4 +284,67 @@ void Game::drawBorder() const
 	};
 
 	DrawTexturePro(borderTex, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
+}
+
+void Game::drawWeaponUI() const
+{
+	drawWeaponDock();
+	drawFireBar();
+	drawUIBullet();
+
+	DrawText(getCurrentWeapon().name, 260, gameState.screenHeight - 57, 50, WHITE);
+	DrawText(std::to_string(getCurrentWeapon().getAmmo()).c_str(), 815, gameState.screenHeight - 57, 50, WHITE);
+}
+
+void Game::drawWeaponDock() const
+{
+	DrawTexture(weaponDockTex, 0, gameState.screenHeight - weaponDockTex.height, WHITE);
+}
+
+void Game::drawFireBar() const
+{
+	const float fireTimeRatio = getCurrentWeapon().getFireTimeRatio(gameState);
+
+	const Rectangle sourceRec =
+	{
+		0, 0,
+		(float)fireBarTex.width, (float)fireBarTex.height
+	};
+	const Rectangle destRec =
+	{
+		10, (float)gameState.screenHeight - 10,
+		(float)fireBarTex.width, 129 * fireTimeRatio
+	};
+
+	DrawTexturePro(fireBarTex, sourceRec, destRec, { 0, destRec.height }, 0, fireTimeRatio < 1.0f ? BLUE : WHITE);
+}
+
+void Game::drawUIBullet() const
+{
+	const Texture2D& bulletTex = getCurrentWeapon().getBullet().getTex();
+
+	const Rectangle sourceRec =
+	{
+		0, 0,
+		(float)bulletTex.width, (float)bulletTex.height
+	};
+
+	const Rectangle destRec =
+	{
+		41, (float)gameState.screenHeight - 137,
+		127, 127
+	};
+
+	DrawTexturePro(bulletTex, sourceRec, destRec, { 0, 0 }, 0, WHITE);
+}
+
+void Game::drawHealthUI() const
+{
+	drawHealthDock();
+	player.drawHealthUI(gameState);
+}
+
+void Game::drawHealthDock() const
+{
+	DrawTexture(healthDockTex, gameState.screenWidth - healthDockTex.width, healthUIY, WHITE);
 }

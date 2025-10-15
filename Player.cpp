@@ -13,22 +13,41 @@ static constexpr float rotSpeed = 10.0f;
 static constexpr float rotAccel = 10.0f;
 
 static constexpr float collisionDamping = 0.6f;
+static constexpr float enemyBounceStrength = 600.0f;
 
 static constexpr float playerScale = 1.0f;
 
-static constexpr double hurtFlashLength = 0.1;
+static constexpr double hurtFlashLength = 0.25;
 static constexpr double invincibilityLength = 0.25;
+
+static constexpr double damageBarDelay = 0.8;
+static constexpr float damageBarSpeed = 300.0f;
 
 void Player::init()
 {
 	shipTex = LoadTexture("assets/sprites/ship.png");
+	damageBarTex = LoadTexture("assets/sprites/damageBar.png");
+	healthBarTex = LoadTexture("assets/sprites/healthBar.png");
 }
 
 void Player::update(const GameState& gameState, float dt)
 {
-	updateVel(dt);
-	updateRot(dt);
-	updateCollisions(gameState);
+	if (!isDead())
+	{
+		updateVel(dt);
+		updateRot(dt);
+		updateCollisions(gameState);
+	}
+
+	if (damageBarX < getHealthBarX())
+	{
+		if (gameState.time - timeOfDamageBarHit > damageBarDelay)
+		{
+			damageBarMoving = true;
+			damageBarX += damageBarSpeed * dt;
+		}
+	}
+	else damageBarMoving = false;
 }
 
 void Player::draw(const GameState& gameState, const GameCamera& camera) const
@@ -56,23 +75,55 @@ void Player::draw(const GameState& gameState, const GameCamera& camera) const
 	DrawTexturePro(shipTex, sourceRec, destRec, { destRec.width / 2, destRec.height / 2 }, rot * RAD2DEG, tint);
 }
 
+void Player::drawHealthUI(const GameState& gameState) const
+{
+	const Rectangle dmgSourceRec =
+	{
+		0, 0,
+		(float)damageBarTex.width, (float)damageBarTex.height
+	};
+	const Rectangle dmgDestRec =
+	{
+		gameState.screenWidth + damageBarX, healthUIY,
+		(float)damageBarTex.width, (float)damageBarTex.height
+	};
+	DrawTexturePro(damageBarTex, dmgSourceRec, dmgDestRec, { dmgDestRec.width, 0 }, 0, WHITE);
+
+	const Rectangle healthSourceRec =
+	{
+		0, 0,
+		(float)healthBarTex.width, (float)healthBarTex.height
+	};
+	const Rectangle healthDestRec =
+	{
+		gameState.screenWidth + getHealthBarX(), healthUIY,
+		(float)healthBarTex.width, (float)healthBarTex.height
+	};
+	DrawTexturePro(healthBarTex, healthSourceRec, healthDestRec, { healthDestRec.width, 0 }, 0, WHITE);
+}
+
 void Player::hit(const GameState& gameState, Enemy* enemy)
 {
-	if (gameState.time - timeOfLastHit < invincibilityLength)
+	if (gameState.time - timeOfLastHit < invincibilityLength || isDead())
 		return;
 
 	timeOfLastHit = gameState.time;
 	health -= enemy->getDamage();
+	vel += (enemy->getVel() - vel).norm() * enemyBounceStrength;
+	if (!damageBarMoving)
+		timeOfDamageBarHit = gameState.time;
 }
 
 void Player::hit(const GameState& gameState, const Bullet& bullet)
 {
-	if (gameState.time - timeOfLastHit < invincibilityLength)
+	if (gameState.time - timeOfLastHit < invincibilityLength || isDead())
 		return;
 
 	timeOfLastHit = gameState.time;
 	health -= bullet.getDamage();
 	vel += (bullet.getVel() - vel).norm() * bullet.getRecoil();
+	if (!damageBarMoving)
+		timeOfDamageBarHit = gameState.time;
 }
 
 Vec2 Player::getPos() const
@@ -105,6 +156,11 @@ float Player::getSize() const
 	return shipTex.width * playerScale;
 }
 
+float Player::getHealthRatio() const
+{
+	return health / maxHealth;
+}
+
 bool Player::isDead() const
 {
 	return health <= 0;
@@ -118,6 +174,11 @@ bool Player::collidesWithBullet(const Bullet& bullet) const
 void Player::setVel(Vec2 vel)
 {
 	this->vel = vel;
+}
+
+float Player::getHealthBarX() const
+{
+	return healthBarTex.width * (1 - getHealthRatio());
 }
 
 void Player::updateVel(float dt)

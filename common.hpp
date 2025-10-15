@@ -5,6 +5,8 @@
 #include "raylib.h"
 #include "Vec2.hpp"
 
+constexpr int healthUIY = -40;
+
 float lerp(float a, float b, float t);
 
 template<typename T>

@@ -4,6 +4,21 @@ Weapon::Weapon(const char* name, int ammo, float bulletSpeed, double fireTime, i
 	: name(name), ammo(ammo), bulletSpeed(bulletSpeed), fireTime(fireTime),
 	numBullets(numBullets), coneAngle(coneAngle), bullet(bullet), fireSound(fireSound) { }
 
+int Weapon::getAmmo() const
+{
+	return ammo;
+}
+
+float Weapon::getFireTimeRatio(const GameState& gameState) const
+{
+	return clamp((float)((gameState.time - timeOfLastShot) / fireTime), 0.0f, 1.0f);
+}
+
+const Bullet& Weapon::getBullet() const
+{
+	return bullet;
+}
+
 std::vector<Bullet> Weapon::fire(const GameState& gameState, Player& player)
 {
 	if (gameState.time - timeOfLastShot < fireTime || ammo == 0) return {};
