@@ -17,10 +17,13 @@ public:
 
 	void draw(const GameState& gameState, const GameCamera& camera) const;
 
+	void setPos(const Vec2& newPos);
+
 	Vec2 getPos() const;
 	Vec2 getVel() const;
 	float getHealth() const;
 	float getDamage() const;
+	float getSize() const;
 
 	void hit(const GameState& gameState, const Bullet& bullet);
 

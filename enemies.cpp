@@ -2,7 +2,7 @@
 #include "enemies.hpp"
 
 TestEnemy::TestEnemy(Vec2 pos, const Texture2D& tex)
-	: Enemy(pos, 1000.0f, 5.0f, 2.0f, tex)
+	: Enemy(pos, 100.0f, 5.0f, 3.0f, tex)
 {
 	bulletTex = LoadTexture("assets/sprites/dog.png");
 }

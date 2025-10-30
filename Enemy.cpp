@@ -27,12 +27,17 @@ void Enemy::draw(const GameState& gameState, const GameCamera& camera) const
 		(float)tex.width * camera.getZoom() * spriteScale, (float)tex.height * camera.getZoom() * spriteScale
 	};
 
-	const float rot = vel.angle() * RAD2DEG;
+	const float rot = vel.angle() * RAD2DEG + 90;
 
 	unsigned char whiteness = (unsigned char)clamp((gameState.time - timeOfLastHit) / hurtFlashLength * 255, 0.0, 255.0);
 	Color tint = { 255, whiteness, whiteness, 255 };
 
 	DrawTexturePro(tex, sourceRec, destRec, { destRec.width / 2, destRec.height / 2 }, rot, tint);
+}
+
+void Enemy::setPos(const Vec2& newPos)
+{
+	pos = newPos;
 }
 
 Vec2 Enemy::getPos() const
@@ -53,6 +58,11 @@ float Enemy::getHealth() const
 float Enemy::getDamage() const
 {
 	return damage;
+}
+
+float Enemy::getSize() const
+{
+	return tex.width * spriteScale;
 }
 
 void Enemy::hit(const GameState& gameState, const Bullet& bullet)

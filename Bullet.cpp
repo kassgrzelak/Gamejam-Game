@@ -3,7 +3,7 @@
 Bullet::Bullet(Vec2 pos, Vec2 vel, float damage, float recoil, int pierceLimit, float spriteScale, const Texture2D& tex)
 	: pos(pos), vel(vel), damage(damage), recoil(recoil), pierceLimit(pierceLimit), spriteScale(spriteScale), tex(tex) { }
 
-void Bullet::update(const std::vector<Enemy*>& enemies, const Player& player, float dt)
+void Bullet::update(const std::list<Enemy*>& enemies, const Player& player, float dt)
 {
 	pos += vel * dt;
 }
@@ -23,7 +23,7 @@ void Bullet::draw(const GameState& gameState, const GameCamera& camera) const
 		(float)tex.width * camera.getZoom() * spriteScale, (float)tex.height * camera.getZoom() * spriteScale
 	};
 
-	const float rot = vel.angle() * RAD2DEG;
+	const float rot = vel.angle() * RAD2DEG + 90;
 
 	DrawTexturePro(tex, sourceRec, destRec, { destRec.width / 2, destRec.height / 2 }, rot, WHITE);
 }

@@ -1,5 +1,4 @@
 #include "Bullet.hpp"
-#include "Bullet.hpp"
 #include "Enemy.hpp"
 #include "Player.hpp"
 
@@ -9,8 +8,8 @@ static constexpr float maxSpeed = 1200.0f;
 static constexpr float normalAccel = 2.0f;
 static constexpr float overspeedAccel = 40.0f;
 
-static constexpr float rotSpeed = 10.0f;
-static constexpr float rotAccel = 10.0f;
+static constexpr float rotSpeed = 8.0f;
+static constexpr float rotAccel = 8.0f;
 
 static constexpr float collisionDamping = 0.6f;
 static constexpr float enemyBounceStrength = 600.0f;
@@ -20,7 +19,7 @@ static constexpr float playerScale = 1.0f;
 static constexpr double hurtFlashLength = 0.25;
 static constexpr double invincibilityLength = 0.25;
 
-static constexpr double damageBarDelay = 0.8;
+static constexpr double damageBarDelay = 0.5;
 static constexpr float damageBarSpeed = 300.0f;
 
 void Player::init()

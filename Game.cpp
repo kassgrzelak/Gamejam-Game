@@ -5,7 +5,8 @@ static constexpr float bgScale = 2.0f;
 static constexpr float parallax = 1.2f;
 
 static constexpr int startupFrames = 20;
-static int startupFrameCounter = 0;
+
+static constexpr double enemySpawnDelay = 10.0f;
 
 void Game::init()
 {
@@ -33,22 +34,23 @@ void Game::init()
 
 	healthDockTex = LoadTexture("assets/sprites/healthDock.png");
 
+	skullTex = LoadTexture("assets/sprites/skull.png");
+
 	testSound = LoadSound("assets/sfx/testSound.wav");
 
-	testBulletTex = LoadTexture("assets/sprites/dog.png");
+	orbTex = LoadTexture("assets/sprites/orb.png");
+	laserTex = LoadTexture("assets/sprites/laser.png");
 
-	weapons.push_back(Weapon("AaBbCcPpQqJj", 999, 1000, 0.1, 1, 0.0f,
-		Bullet(Vec2::zero(), Vec2::zero(), 10, 100, 1, 0.5f, testBulletTex), testSound));
+	weapons.push_back(Weapon("Plasma Rifle", 999, 1000, 0.1, 1, 0.0f,
+		Bullet(Vec2::zero(), Vec2::zero(), 10, 100, 1, 0.8f, orbTex), testSound));
 
-	weapons.push_back(Weapon("test weapon 2", 999, 1500, 0.8, 5, 0.4f,
-		Bullet(Vec2::zero(), Vec2::zero(), 3, 500, 3, 0.5f, testBulletTex), testSound));
+	weapons.push_back(Weapon("Laser Shotgun", 999, 1500, 0.8, 5, 0.4f,
+		Bullet(Vec2::zero(), Vec2::zero(), 5, 500, 3, 1.5f, laserTex), testSound));
 
-	weapons.push_back(Weapon("test weapon 3", 999, 5000, 1.4, 1, 0.0f,
-		Bullet(Vec2::zero(), Vec2::zero(), 50, 1000, 5, 0.5f, testBulletTex), testSound));
+	weapons.push_back(Weapon("Laser Sniper", 999, 5000, 1.4, 1, 0.0f,
+		Bullet(Vec2::zero(), Vec2::zero(), 50, 1000, 5, 2.5f, laserTex), testSound));
 
-	testEnemyTex = LoadTexture("assets/sprites/dog.png");
-
-	enemies.push_back(new TestEnemy(Vec2(1000, 0), testEnemyTex));
+	testEnemyTex = LoadTexture("assets/sprites/enemy1.png");
 
 	loadLevel("purp", 2000.0f);
 }
@@ -131,6 +133,8 @@ void Game::update()
 
 	keyInput();
 
+	spawnEnemies();
+
 	player.update(gameState, dt);
 
 	updateEnemies(dt);
@@ -159,6 +163,8 @@ void Game::updateEnemies(float dt)
 	{
 		if ((*enemy)->getHealth() <= 0)
 		{
+			++killCounter;
+
 			enemy = enemies.erase(enemy);
 			continue;
 		}
@@ -171,6 +177,45 @@ void Game::updateEnemies(float dt)
 
 		++enemy;
 	}
+
+	for (auto enemy1 = enemies.begin(); enemy1 != enemies.end(); ++enemy1)
+	{
+		auto enemy2 = enemy1;
+		++enemy2;
+
+		for (; enemy2 != enemies.end(); ++enemy2)
+		{
+			Vec2 rel = (*enemy2)->getPos() - (*enemy1)->getPos();
+			float dist = rel.mag();
+
+			if (dist == 0.0f)
+				continue;
+
+			float minDist = (*enemy1)->getSize() / 2.0f + (*enemy2)->getSize() / 2.0f;
+			float depth = minDist - dist;
+
+			if (depth <= 0.0f)
+				continue;
+
+			(*enemy1)->setPos((*enemy1)->getPos() - rel.norm() * depth / 2);
+			(*enemy2)->setPos((*enemy2)->getPos() + rel.norm() * depth / 2);
+		}
+	}
+}
+
+void Game::spawnEnemies()
+{
+	if (gameState.time - timeOfLastEnemySpawn < enemySpawnDelay)
+		return;
+
+	float theta = randF() * 2.0f * PI;
+	float radius = gameState.borderRadius + 100.0f;
+	Vec2 pos = Vec2(radius * cos(theta), radius * sin(theta));
+
+	enemies.push_back(new TestEnemy(pos, testEnemyTex));
+
+	++enemySpawnCounter;
+	timeOfLastEnemySpawn = gameState.time;
 }
 
 void Game::updatePlayerMadeBullets(float dt)
@@ -247,6 +292,10 @@ void Game::draw() const
 
 	drawWeaponUI();
 	drawHealthUI();
+
+	DrawTextureEx(skullTex, { 10, 10 }, 0, 2.0f, getSkullTint());
+
+	DrawText(std::to_string(killCounter).c_str(), 80, 20, 50, RED);
 
 	if (player.isDead())
 		DrawText("YOU DIED", (int)(gameState.getScreenCenter().x - MeasureText("YOU DIED", 100) / 2.0f), (int)gameState.getScreenCenter().y - 50, 100, RED);
@@ -347,4 +396,10 @@ void Game::drawHealthUI() const
 void Game::drawHealthDock() const
 {
 	DrawTexture(healthDockTex, gameState.screenWidth - healthDockTex.width, healthUIY, WHITE);
+}
+
+Color Game::getSkullTint() const
+{
+	unsigned char whiteness = (unsigned char)(255 - clamp(killCounter / 50.0f * 255, 0.0f, 255.0f));
+	return { 255, whiteness, whiteness, 255 };
 }

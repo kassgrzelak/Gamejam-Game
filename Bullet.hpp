@@ -4,15 +4,15 @@
 #include "Enemy.hpp"
 #include "GameCamera.hpp"
 #include "GameState.hpp"
+#include <list>
 #include <unordered_set>
-#include <vector>
 
 class Bullet
 {
 public:
 	Bullet(Vec2 pos, Vec2 vel, float damage, float recoil, int pierceLimit, float spriteScale, const Texture2D& tex);
 
-	void update(const std::vector<Enemy*>& enemies, const Player& player, float dt);
+	void update(const std::list<Enemy*>& enemies, const Player& player, float dt);
 	void draw(const GameState& gameState, const GameCamera& camera) const;
 
 	Vec2 getPos() const;

@@ -5,6 +5,7 @@
 #include "GameState.hpp"
 #include "Player.hpp"
 #include "Weapon.hpp"
+#include <list>
 #include <string>
 #include <vector>
 
@@ -16,6 +17,8 @@ public:
 	void end();
 
 private:
+	int startupFrameCounter = 0;
+
 	GameState gameState;
 	Player player;
 	GameCamera camera;
@@ -30,17 +33,24 @@ private:
 
 	Sound testSound;
 
+	Texture2D skullTex;
+	int killCounter = 0;
+
+	double timeOfLastEnemySpawn = -999;
+	int enemySpawnCounter = 0;
+
 	std::vector<Weapon> weapons;
 	size_t weaponIndex = 0;
 
-	Texture2D testBulletTex;
+	Texture2D orbTex;
+	Texture2D laserTex;
 
 	std::vector<Bullet> enemyMadeBullets;
 	std::vector<Bullet> playerMadeBullets;
 
 	Texture2D testEnemyTex;
 
-	std::vector<Enemy*> enemies;
+	std::list<Enemy*> enemies;
 
 	void loadLevel(const std::string& bgType, float borderRadius);
 	void loadBg(const std::string& bgType, int maxNum);
@@ -57,6 +67,8 @@ private:
 
 	void updateEnemies(float dt);
 
+	void spawnEnemies();
+
 	void updatePlayerMadeBullets(float dt);
 	void updateEnemyMadeBullets(float dt);
 
@@ -72,4 +84,6 @@ private:
 
 	void drawHealthUI() const;
 	void drawHealthDock() const;
+
+	Color getSkullTint() const;
 };
