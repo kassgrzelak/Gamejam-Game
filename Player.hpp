@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "GameCamera.hpp"
 #include "GameState.hpp"
+#include "Pickup.hpp"
 
 class Bullet;
 class Enemy;
@@ -29,6 +30,9 @@ public:
 
 	bool isDead() const;
 	bool collidesWithBullet(const Bullet& bullet) const;
+	bool collidesWithPickup(const Pickup& pickup) const;
+
+	void healthPickup();
 
 	void setVel(Vec2 vel);
 

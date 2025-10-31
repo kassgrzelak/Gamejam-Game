@@ -15,6 +15,8 @@ public:
 
 	std::vector<Bullet> fire(const GameState& gameState, Player& player);
 
+	void ammoPickup();
+
 private:
 	int ammo;
 	float bulletSpeed;

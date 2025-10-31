@@ -31,7 +31,17 @@ private:
 
 	Texture2D healthDockTex;
 
-	Sound testSound;
+	Sound plasmaRifleSound;
+	Sound laserShotgunSound;
+	Sound laserSniperSound;
+
+	Sound pickupSound;
+
+	Music bgMusic;
+	Sound voices1;
+	Sound voices2;
+	Sound voices3;
+	Sound voices4;
 
 	Texture2D skullTex;
 	int killCounter = 0;
@@ -42,8 +52,13 @@ private:
 	std::vector<Weapon> weapons;
 	size_t weaponIndex = 0;
 
+	Texture2D healthPickupTex;
+	Texture2D ammo1PickupTex;
+	Texture2D ammo2PickupTex;
+
 	Texture2D orbTex;
-	Texture2D laserTex;
+	Texture2D laserRedTex;
+	Texture2D laserGreenTex;
 
 	std::vector<Bullet> enemyMadeBullets;
 	std::vector<Bullet> playerMadeBullets;
@@ -51,6 +66,8 @@ private:
 	Texture2D testEnemyTex;
 
 	std::list<Enemy*> enemies;
+
+	std::vector<Pickup> pickups;
 
 	void loadLevel(const std::string& bgType, float borderRadius);
 	void loadBg(const std::string& bgType, int maxNum);
@@ -65,7 +82,11 @@ private:
 
 	void keyInput();
 
+	void checkPickupCollision(float dt);
+
 	void updateEnemies(float dt);
+
+	void playVoices();
 
 	void spawnEnemies();
 

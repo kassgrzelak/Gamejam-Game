@@ -27,7 +27,8 @@ std::vector<Bullet> Weapon::fire(const GameState& gameState, Player& player)
 	player.setVel(oldPlayerVel + Vec2(0, bullet.getRecoil()).rotate(player.getRot()));
 
 	PlaySound(fireSound);
-	--ammo;
+	if (name != "Plasma Rifle")
+		--ammo;
 	timeOfLastShot = gameState.time;
 
 	std::vector<Bullet> bullets = {};
@@ -55,4 +56,9 @@ std::vector<Bullet> Weapon::fire(const GameState& gameState, Player& player)
 	}
 
 	return bullets;
+}
+
+void Weapon::ammoPickup()
+{
+	ammo += 5;
 }

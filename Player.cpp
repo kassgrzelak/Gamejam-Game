@@ -4,17 +4,17 @@
 
 static constexpr Vec2 frontDir = { 0.0f, -1.0f }; // The direction the player faces before any rotation is applied.
 
-static constexpr float maxSpeed = 1200.0f;
+static constexpr float maxSpeed = 2200.0f;
 static constexpr float normalAccel = 2.0f;
 static constexpr float overspeedAccel = 40.0f;
 
-static constexpr float rotSpeed = 8.0f;
+static constexpr float rotSpeed = 20.0f;
 static constexpr float rotAccel = 8.0f;
 
 static constexpr float collisionDamping = 0.6f;
 static constexpr float enemyBounceStrength = 600.0f;
 
-static constexpr float playerScale = 1.0f;
+static constexpr float playerScale = 2.0f;
 
 static constexpr double hurtFlashLength = 0.25;
 static constexpr double invincibilityLength = 0.25;
@@ -46,7 +46,11 @@ void Player::update(const GameState& gameState, float dt)
 			damageBarX += damageBarSpeed * dt;
 		}
 	}
-	else damageBarMoving = false;
+	else
+	{
+		damageBarX = getHealthBarX();
+		damageBarMoving = false;
+	}
 }
 
 void Player::draw(const GameState& gameState, const GameCamera& camera) const
@@ -170,6 +174,17 @@ bool Player::collidesWithBullet(const Bullet& bullet) const
 	return CheckCollisionCircles(pos, shipTex.width * playerScale / 2.0f, bullet.getPos(), bullet.getSize() / 2);
 }
 
+bool Player::collidesWithPickup(const Pickup& pickup) const
+{
+	return CheckCollisionCircles(pos, shipTex.width * playerScale / 2.0f, pickup.pos, pickup.tex.width / 2.0f);
+}
+
+void Player::healthPickup()
+{
+	health += 10;
+	health = clamp(health, 0.0f, 100.0f);
+}
+
 void Player::setVel(Vec2 vel)
 {
 	this->vel = vel;
@@ -214,6 +229,7 @@ void Player::updateRot(float dt)
 	else
 	{
 		Vec2 mouseDelta = GetMouseDelta();
+		mouseDelta /= 60.0f;
 		targetRotVel = mouseDelta.x * rotSpeed;
 	}
 

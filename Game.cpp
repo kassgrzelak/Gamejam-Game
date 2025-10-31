@@ -4,9 +4,11 @@
 static constexpr float bgScale = 2.0f;
 static constexpr float parallax = 1.2f;
 
-static constexpr int startupFrames = 20;
+static constexpr int startupFrames = 20 * 60;
 
-static constexpr double enemySpawnDelay = 10.0f;
+static double enemySpawnDelay = 10.0f;
+
+static constexpr int maxKills = 50;
 
 void Game::init()
 {
@@ -16,6 +18,8 @@ void Game::init()
 	InitAudioDevice();
 	ToggleFullscreen();
 	DisableCursor();
+	SetTargetFPS(60);
+	SetWindowState(FLAG_VSYNC_HINT);
 
 	const int monitor = GetCurrentMonitor();
 
@@ -36,29 +40,48 @@ void Game::init()
 
 	skullTex = LoadTexture("assets/sprites/skull.png");
 
-	testSound = LoadSound("assets/sfx/testSound.wav");
+	plasmaRifleSound = LoadSound("assets/sfx/plasmaRifle.wav");
+	laserShotgunSound = LoadSound("assets/sfx/laserShotgun.wav");
+	laserSniperSound = LoadSound("assets/sfx/laserSniper.wav");
+
+	pickupSound = LoadSound("assets/sfx/pickupSound.wav");
+
+	bgMusic = LoadMusicStream("assets/sfx/Cosmos.wav");
+	voices1 = LoadSound("assets/sfx/Cosmos Voices 1.wav");
+	voices2 = LoadSound("assets/sfx/Cosmos Voices 2.wav");
+	voices3 = LoadSound("assets/sfx/Cosmos Voices 3.wav");
+	voices4 = LoadSound("assets/sfx/Cosmos Voices 4.wav");
+
+	healthPickupTex = LoadTexture("assets/sprites/healthPickup.png");
+	ammo1PickupTex = LoadTexture("assets/sprites/ammoPickup1.png");
+	ammo2PickupTex = LoadTexture("assets/sprites/ammoPickup2.png");
 
 	orbTex = LoadTexture("assets/sprites/orb.png");
-	laserTex = LoadTexture("assets/sprites/laser.png");
+	laserRedTex = LoadTexture("assets/sprites/laserRed.png");
+	laserGreenTex = LoadTexture("assets/sprites/laserGreen.png");
 
-	weapons.push_back(Weapon("Plasma Rifle", 999, 1000, 0.1, 1, 0.0f,
-		Bullet(Vec2::zero(), Vec2::zero(), 10, 100, 1, 0.8f, orbTex), testSound));
+	weapons.push_back(Weapon("Plasma Rifle", 999, 1600, 0.1, 1, 0.0f,
+		Bullet(Vec2::zero(), Vec2::zero(), 8, 100, 1, 0.8f, orbTex), plasmaRifleSound));
 
-	weapons.push_back(Weapon("Laser Shotgun", 999, 1500, 0.8, 5, 0.4f,
-		Bullet(Vec2::zero(), Vec2::zero(), 5, 500, 3, 1.5f, laserTex), testSound));
+	weapons.push_back(Weapon("Laser Shotgun", 50, 1600, 0.8, 5, 0.3f,
+		Bullet(Vec2::zero(), Vec2::zero(), 10, 1000, 3, 1.5f, laserRedTex), laserShotgunSound));
 
-	weapons.push_back(Weapon("Laser Sniper", 999, 5000, 1.4, 1, 0.0f,
-		Bullet(Vec2::zero(), Vec2::zero(), 50, 1000, 5, 2.5f, laserTex), testSound));
+	weapons.push_back(Weapon("Laser Sniper", 10, 5000, 1.4, 1, 0.0f,
+		Bullet(Vec2::zero(), Vec2::zero(), 50, 2000, 5, 2.5f, laserGreenTex), laserSniperSound));
 
 	testEnemyTex = LoadTexture("assets/sprites/enemy1.png");
 
-	loadLevel("purp", 2000.0f);
+	PlayMusicStream(bgMusic);
+
+	loadLevel("blue", 3000.0f);
 }
 
 void Game::run()
 {
 	while (!WindowShouldClose())
 	{
+		UpdateMusicStream(bgMusic);
+
 		if (startupFrameCounter < startupFrames)
 		{
 			++startupFrameCounter;
@@ -79,7 +102,7 @@ void Game::end()
 void Game::loadLevel(const std::string& bgType, float borderRadius)
 {
 	if (bgType == "blue")
-		loadBg("blue", 5);
+		loadBg("blue", 3);
 	else if (bgType == "green")
 		loadBg("green", 5);
 	else if (bgType == "purp")
@@ -137,6 +160,7 @@ void Game::update()
 
 	player.update(gameState, dt);
 
+	checkPickupCollision(dt);
 	updateEnemies(dt);
 	updatePlayerMadeBullets(dt);
 	updateEnemyMadeBullets(dt);
@@ -157,6 +181,29 @@ void Game::keyInput()
 		nextWeapon();
 }
 
+void Game::checkPickupCollision(float dt)
+{
+	for (auto pickup = pickups.begin(); pickup != pickups.end(); )
+	{
+		if (player.collidesWithPickup(*pickup))
+		{
+			if (pickup->type == PickupType::Health)
+				player.healthPickup();
+			else if (pickup->type == PickupType::Ammo1)
+				weapons[1].ammoPickup();
+			else
+				weapons[2].ammoPickup(); // I'M SORRY OKAY I'M ON A DEADLINE HERE
+
+			PlaySound(pickupSound);
+
+			pickup = pickups.erase(pickup);
+			continue;
+		}
+
+		++pickup;
+	}
+}
+
 void Game::updateEnemies(float dt)
 {
 	for (auto enemy = enemies.begin(); enemy != enemies.end(); )
@@ -164,6 +211,20 @@ void Game::updateEnemies(float dt)
 		if ((*enemy)->getHealth() <= 0)
 		{
 			++killCounter;
+
+			float random = randF();
+
+			if (random < 0.1f)
+				pickups.emplace_back((*enemy)->getPos(), PickupType::Health, healthPickupTex);
+			else if (random < 0.2f)
+				pickups.emplace_back((*enemy)->getPos(), PickupType::Ammo1, ammo1PickupTex);
+			else if (random < 0.3f)
+				pickups.emplace_back((*enemy)->getPos(), PickupType::Ammo2, ammo1PickupTex);
+
+			if (killCounter == 1)
+				playVoices();
+			else if (randF() < 0.05f * (1 + 5.0f * clamp(killCounter / (float)maxKills, 0.0f, 1.0f)))
+				playVoices();
 
 			enemy = enemies.erase(enemy);
 			continue;
@@ -203,6 +264,23 @@ void Game::updateEnemies(float dt)
 	}
 }
 
+void Game::playVoices()
+{
+	if (IsSoundPlaying(voices1) || IsSoundPlaying(voices2) || IsSoundPlaying(voices3) || IsSoundPlaying(voices4))
+		return;
+
+	int num = randInt(1, 4);
+
+	if (num == 1)
+		PlaySound(voices1);
+	else if (num == 2)
+		PlaySound(voices2);
+	else if (num == 3)
+		PlaySound(voices3);
+	else if (num == 4)
+		PlaySound(voices4);
+}
+
 void Game::spawnEnemies()
 {
 	if (gameState.time - timeOfLastEnemySpawn < enemySpawnDelay)
@@ -212,10 +290,11 @@ void Game::spawnEnemies()
 	float radius = gameState.borderRadius + 100.0f;
 	Vec2 pos = Vec2(radius * cos(theta), radius * sin(theta));
 
-	enemies.push_back(new TestEnemy(pos, testEnemyTex));
+	enemies.push_back(new Wasp(pos, testEnemyTex));
 
 	++enemySpawnCounter;
 	timeOfLastEnemySpawn = gameState.time;
+	enemySpawnDelay = clamp(enemySpawnDelay * 0.95, 3.0, 999.0);
 }
 
 void Game::updatePlayerMadeBullets(float dt)
@@ -278,14 +357,17 @@ void Game::draw() const
 	ClearBackground(BLACK);
 	drawBg();
 
+	for (const auto& pickup : pickups)
+		pickup.draw(gameState, camera);
+
 	for (auto enemy : enemies)
 		enemy->draw(gameState, camera);
 
 	player.draw(gameState, camera);
 
-	for (auto& bullet : playerMadeBullets)
+	for (const auto& bullet : playerMadeBullets)
 		bullet.draw(gameState, camera);
-	for (auto& bullet : enemyMadeBullets)
+	for (const auto& bullet : enemyMadeBullets)
 		bullet.draw(gameState, camera);
 
 	drawBorder();
@@ -295,10 +377,43 @@ void Game::draw() const
 
 	DrawTextureEx(skullTex, { 10, 10 }, 0, 2.0f, getSkullTint());
 
-	DrawText(std::to_string(killCounter).c_str(), 80, 20, 50, RED);
+	DrawText(std::to_string(killCounter).c_str(), 80, 20, 50, getSkullTint());
 
 	if (player.isDead())
 		DrawText("YOU DIED", (int)(gameState.getScreenCenter().x - MeasureText("YOU DIED", 100) / 2.0f), (int)gameState.getScreenCenter().y - 50, 100, RED);
+
+	if (startupFrameCounter < startupFrames)
+	{
+		unsigned char transparency1;
+		unsigned char transparency2;
+		unsigned char transparency3;
+		unsigned char transparency4;
+		unsigned char transparency5;
+
+		if (startupFrameCounter < 17 * 60)
+		{
+			transparency1 = (unsigned char)(clamp(startupFrameCounter / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency2 = (unsigned char)(clamp((startupFrameCounter - 2 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency3 = (unsigned char)(clamp((startupFrameCounter - 5 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency4 = (unsigned char)(clamp((startupFrameCounter - 8 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency5 = (unsigned char)(clamp((startupFrameCounter - 12 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+		}
+		else
+		{
+			transparency1 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency2 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency3 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency4 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency5 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+		}
+
+		DrawText("Date: 42nd Archeon, 2621", 50, 100, 50, { 152, 241, 255, transparency1 });
+		DrawText("Location: Unmapped outskirts of Orpheus Cluster", 50, 150, 50, { 152, 241, 255, transparency2 });
+		DrawText("The Earthen Federation is concerned with growing overpopulation\nin the homeworlds of Earth, Mars, and Venus.", 50, 250, 50, { 152, 241, 255, transparency3 });
+		DrawText("The remaining planets in Earth's solar system would be costly to\nterraform, so you have been sent on a scouting mission to investigate\npotentially more habitable worlds in a nearby solar system.", 50, 350, 50, { 152, 241, 255, transparency4 });
+		DrawText("You are an invader.", 50, 550, 50, { 255, 80, 80, transparency5 });
+
+	}
 
 	EndDrawing();
 }
@@ -307,11 +422,11 @@ void Game::drawBg() const
 {
 	const Rectangle sourceRec =
 	{
-			camera.getPos().x / bgScale / parallax - gameState.getScreenCenter().x / bgScale / camera.getZoom(),
-			camera.getPos().y / bgScale / parallax - gameState.getScreenCenter().y / bgScale / camera.getZoom(),
-			gameState.screenWidth / bgScale / camera.getZoom(), gameState.screenHeight / bgScale / camera.getZoom()
+			(int)(camera.getPos().x / bgScale / parallax - gameState.getScreenCenter().x / bgScale / camera.getZoom()),
+			(int)(camera.getPos().y / bgScale / parallax - gameState.getScreenCenter().y / bgScale / camera.getZoom()),
+			(int)(gameState.screenWidth / bgScale / camera.getZoom()), (int)(gameState.screenHeight / bgScale / camera.getZoom())
 	};
-	const Rectangle destRec = { 0, 0, (float)gameState.screenWidth, (float)gameState.screenHeight };
+	const Rectangle destRec = { 0, 0, (int)gameState.screenWidth, (int)gameState.screenHeight };
 
 	DrawTexturePro(bgTex, sourceRec, destRec, { 0, 0 }, 0, WHITE);
 }
@@ -324,12 +439,12 @@ void Game::drawBorder() const
 		(float)borderTex.width, (float)borderTex.height
 	};
 
-	Vec2 topLeftScreenPos = camera.getScreenPos(gameState, Vec2(-gameState.borderRadius, -gameState.borderRadius));
+	Vec2 topLeftScreenPos = camera.getScreenPos(gameState, Vec2(-(gameState.borderRadius + 30.0f), -(gameState.borderRadius + 30.0f)));
 
 	const Rectangle destRec =
 	{
-		topLeftScreenPos.x, topLeftScreenPos.y,
-		2 * gameState.borderRadius * camera.getZoom(), 2 * gameState.borderRadius * camera.getZoom()
+		(int)topLeftScreenPos.x, (int)topLeftScreenPos.y,
+		2 * (gameState.borderRadius + 30.0f) * camera.getZoom(), 2 * (gameState.borderRadius + 30.0f) * camera.getZoom()
 	};
 
 	DrawTexturePro(borderTex, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
@@ -400,6 +515,6 @@ void Game::drawHealthDock() const
 
 Color Game::getSkullTint() const
 {
-	unsigned char whiteness = (unsigned char)(255 - clamp(killCounter / 50.0f * 255, 0.0f, 255.0f));
+	unsigned char whiteness = (unsigned char)(255 - clamp(killCounter / (float)maxKills * 255, 0.0f, 255.0f));
 	return { 255, whiteness, whiteness, 255 };
 }
