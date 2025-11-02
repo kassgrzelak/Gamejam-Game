@@ -75,10 +75,10 @@ void Enemy::hit(const GameState& gameState, const Bullet& bullet)
 
 bool Enemy::collidesWithPlayer(const Player& player) const
 {
-	return CheckCollisionCircles(pos, tex.width / 2.0f, player.getPos(), player.getSize() / 2);
+	return CheckCollisionCircles(pos, tex.width * spriteScale / 2.0f, player.getPos(), player.getSize() / 2);
 }
 
 bool Enemy::collidesWithBullet(const Bullet& bullet) const
 {
-	return CheckCollisionCircles(pos, tex.width / 2.0f, bullet.getPos(), bullet.getSize() / 2);
+	return CheckCollisionCircles(pos, tex.width * spriteScale / 2.0f, bullet.getPos(), bullet.getSize() / 2);
 }

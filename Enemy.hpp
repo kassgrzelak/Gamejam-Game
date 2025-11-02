@@ -43,5 +43,5 @@ protected:
 	float spriteScale;
 
 	double timeOfLastHit = -999;
-	double timeOfLastShot = 0;
+	double timeOfLastShot = -999;
 };

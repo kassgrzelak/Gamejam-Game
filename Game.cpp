@@ -4,11 +4,11 @@
 static constexpr float bgScale = 2.0f;
 static constexpr float parallax = 1.2f;
 
-static constexpr int startupFrames = 20 * 60;
+static constexpr int startupFrames = 22 * 60;
 
 static double enemySpawnDelay = 10.0f;
 
-static constexpr int maxKills = 50;
+static constexpr int maxKills = 25;
 
 void Game::init()
 {
@@ -16,7 +16,7 @@ void Game::init()
 
 	InitWindow(0, 0, "Gamejam Game");
 	InitAudioDevice();
-	ToggleFullscreen();
+	ToggleBorderlessWindowed();
 	DisableCursor();
 	SetTargetFPS(60);
 	SetWindowState(FLAG_VSYNC_HINT);
@@ -61,15 +61,17 @@ void Game::init()
 	laserGreenTex = LoadTexture("assets/sprites/laserGreen.png");
 
 	weapons.push_back(Weapon("Plasma Rifle", 999, 1600, 0.1, 1, 0.0f,
-		Bullet(Vec2::zero(), Vec2::zero(), 8, 100, 1, 0.8f, orbTex), plasmaRifleSound));
+		Bullet(Vec2::zero(), Vec2::zero(), 15, 300, 1, 0.8f, orbTex), plasmaRifleSound));
 
-	weapons.push_back(Weapon("Laser Shotgun", 50, 1600, 0.8, 5, 0.3f,
+	weapons.push_back(Weapon("Laser Shotgun", 10, 1600, 0.8, 5, 0.3f,
 		Bullet(Vec2::zero(), Vec2::zero(), 10, 1000, 3, 1.5f, laserRedTex), laserShotgunSound));
 
-	weapons.push_back(Weapon("Laser Sniper", 10, 5000, 1.4, 1, 0.0f,
+	weapons.push_back(Weapon("Laser Sniper", 5, 5000, 1.4, 1, 0.0f,
 		Bullet(Vec2::zero(), Vec2::zero(), 50, 2000, 5, 2.5f, laserGreenTex), laserSniperSound));
 
-	testEnemyTex = LoadTexture("assets/sprites/enemy1.png");
+	waspTex = LoadTexture("assets/sprites/enemy1.png");
+	flyTex = LoadTexture("assets/sprites/enemy2.png");
+	bigFlyTex = LoadTexture("assets/sprites/enemy3.png");
 
 	PlayMusicStream(bgMusic);
 
@@ -80,12 +82,22 @@ void Game::run()
 {
 	while (!WindowShouldClose())
 	{
+		gameState.time = GetTime();
 		UpdateMusicStream(bgMusic);
+
+		if (!IsMusicStreamPlaying(bgMusic))
+		{
+			StopMusicStream(bgMusic);
+			PlayMusicStream(bgMusic);
+		}
 
 		if (startupFrameCounter < startupFrames)
 		{
 			++startupFrameCounter;
 			SetWindowFocused();
+
+			if (startupFrameCounter == startupFrames)
+				timeOfStart = gameState.time;
 		}
 		else
 			update();
@@ -151,7 +163,6 @@ void Game::prevWeapon()
 
 void Game::update()
 {
-	gameState.time = GetTime();
 	const float dt = GetFrameTime();
 
 	keyInput();
@@ -213,18 +224,22 @@ void Game::updateEnemies(float dt)
 			++killCounter;
 
 			float random = randF();
+			float healthChance = 0.1f + clamp((1 - 2.0f * player.getHealthRatio()) * 0.3f, 0.0f, 0.2f);
 
-			if (random < 0.1f)
+			if (random < healthChance)
 				pickups.emplace_back((*enemy)->getPos(), PickupType::Health, healthPickupTex);
-			else if (random < 0.2f)
+			else if (random < healthChance + 0.1f)
 				pickups.emplace_back((*enemy)->getPos(), PickupType::Ammo1, ammo1PickupTex);
-			else if (random < 0.3f)
-				pickups.emplace_back((*enemy)->getPos(), PickupType::Ammo2, ammo1PickupTex);
+			else if (random < healthChance + 0.2f)
+				pickups.emplace_back((*enemy)->getPos(), PickupType::Ammo2, ammo2PickupTex);
 
 			if (killCounter == 1)
 				playVoices();
 			else if (randF() < 0.05f * (1 + 5.0f * clamp(killCounter / (float)maxKills, 0.0f, 1.0f)))
 				playVoices();
+
+			if (killCounter == maxKills)
+				timeOfFinish = gameState.time;
 
 			enemy = enemies.erase(enemy);
 			continue;
@@ -264,7 +279,7 @@ void Game::updateEnemies(float dt)
 	}
 }
 
-void Game::playVoices()
+void Game::playVoices() const
 {
 	if (IsSoundPlaying(voices1) || IsSoundPlaying(voices2) || IsSoundPlaying(voices3) || IsSoundPlaying(voices4))
 		return;
@@ -283,14 +298,21 @@ void Game::playVoices()
 
 void Game::spawnEnemies()
 {
-	if (gameState.time - timeOfLastEnemySpawn < enemySpawnDelay)
+	if (gameState.time - timeOfLastEnemySpawn < enemySpawnDelay || killCounter + enemies.size() >= maxKills)
 		return;
 
 	float theta = randF() * 2.0f * PI;
 	float radius = gameState.borderRadius + 100.0f;
 	Vec2 pos = Vec2(radius * cos(theta), radius * sin(theta));
 
-	enemies.push_back(new Wasp(pos, testEnemyTex));
+	float random = randF();
+
+	if (random < 0.6f)
+		enemies.push_back(new Wasp(pos, waspTex));
+	else if (random < 0.9f)
+		enemies.push_back(new Fly(pos, flyTex));
+	else
+		enemies.push_back(new BigFly(pos, bigFlyTex));
 
 	++enemySpawnCounter;
 	timeOfLastEnemySpawn = gameState.time;
@@ -377,10 +399,36 @@ void Game::draw() const
 
 	DrawTextureEx(skullTex, { 10, 10 }, 0, 2.0f, getSkullTint());
 
-	DrawText(std::to_string(killCounter).c_str(), 80, 20, 50, getSkullTint());
+	DrawText((std::to_string(killCounter) + "/" + std::to_string(maxKills)).c_str(), 80, 20, 50, getSkullTint());
 
 	if (player.isDead())
-		DrawText("YOU DIED", (int)(gameState.getScreenCenter().x - MeasureText("YOU DIED", 100) / 2.0f), (int)gameState.getScreenCenter().y - 50, 100, RED);
+		DrawText("MISSION FAILED", (int)(gameState.getScreenCenter().x - MeasureText("MISSION FAILED", 100) / 2.0f), (int)gameState.getScreenCenter().y - 50, 100, RED);
+	
+	if (killCounter >= maxKills)
+	{
+		const double t = gameState.time - timeOfFinish;
+		double playTime = gameState.time;
+
+		unsigned char transparency1 = (unsigned char)clamp(t / 3 * 255, 0.0, 255.0);
+		unsigned char transparency2 = (unsigned char)clamp((t - 2) / 3 * 255, 0.0, 255.0);
+		unsigned char transparency3 = (unsigned char)clamp((t - 5) / 3 * 255, 0.0, 255.0);
+		unsigned char transparency4 = (unsigned char)clamp((t - 8) / 3 * 255, 0.0, 255.0);
+
+		std::string minutes = std::to_string((int)playTime / 60);
+		std::string seconds = std::to_string((int)playTime % 60);
+
+		if (minutes.length() == 1)
+			minutes = "0" + minutes;
+		if (seconds.length() == 1)
+			seconds = "0" + seconds;
+
+		DrawText(("Date: 42nd Archeon, 2621, T+" + minutes + ":" + seconds + " MT").c_str(), 50, 100, 50, {152, 241, 255, transparency1});
+		DrawText("Location: Unmapped outskirts of Orpheus Cluster", 50, 150, 50, { 152, 241, 255, transparency2 });
+		DrawText("The unforeseen alien threat has been eliminated. You will be regarded\nat home as a hero.", 50, 250, 50, { 152, 241, 255, transparency3 });
+		DrawText("Glory to The Leader.", 50, 400, 50, { 255, 20, 20, transparency4 });
+
+		playVoices();
+	}
 
 	if (startupFrameCounter < startupFrames)
 	{
@@ -389,29 +437,37 @@ void Game::draw() const
 		unsigned char transparency3;
 		unsigned char transparency4;
 		unsigned char transparency5;
+		unsigned char transparency6;
 
-		if (startupFrameCounter < 17 * 60)
+		if (startupFrameCounter < 19 * 60)
 		{
 			transparency1 = (unsigned char)(clamp(startupFrameCounter / (60.0f * 3) * 255, 0.0f, 255.0f));
 			transparency2 = (unsigned char)(clamp((startupFrameCounter - 2 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
 			transparency3 = (unsigned char)(clamp((startupFrameCounter - 5 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
 			transparency4 = (unsigned char)(clamp((startupFrameCounter - 8 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
 			transparency5 = (unsigned char)(clamp((startupFrameCounter - 12 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency6 = (unsigned char)(clamp((startupFrameCounter - 15 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
 		}
 		else
 		{
-			transparency1 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
-			transparency2 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
-			transparency3 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
-			transparency4 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
-			transparency5 = 255 - (unsigned char)(clamp((startupFrameCounter - 17 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency1 = 255 - (unsigned char)(clamp((startupFrameCounter - 19 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency2 = 255 - (unsigned char)(clamp((startupFrameCounter - 19 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency3 = 255 - (unsigned char)(clamp((startupFrameCounter - 19 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency4 = 255 - (unsigned char)(clamp((startupFrameCounter - 19 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency5 = 255 - (unsigned char)(clamp((startupFrameCounter - 19 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
+			transparency6 = 255 - (unsigned char)(clamp((startupFrameCounter - 19 * 60) / (60.0f * 3) * 255, 0.0f, 255.0f));
 		}
 
-		DrawText("Date: 42nd Archeon, 2621", 50, 100, 50, { 152, 241, 255, transparency1 });
+		std::string seconds = std::to_string((int)gameState.time);
+		if (seconds.length() == 1)
+			seconds = "0" + seconds;
+
+		DrawText(("Date: 42nd Archeon, 2621, T+00:" + seconds + " MT").c_str(), 50, 100, 50, {152, 241, 255, transparency1});
 		DrawText("Location: Unmapped outskirts of Orpheus Cluster", 50, 150, 50, { 152, 241, 255, transparency2 });
 		DrawText("The Earthen Federation is concerned with growing overpopulation\nin the homeworlds of Earth, Mars, and Venus.", 50, 250, 50, { 152, 241, 255, transparency3 });
 		DrawText("The remaining planets in Earth's solar system would be costly to\nterraform, so you have been sent on a scouting mission to investigate\npotentially more habitable worlds in a nearby solar system.", 50, 350, 50, { 152, 241, 255, transparency4 });
-		DrawText("You are an invader.", 50, 550, 50, { 255, 80, 80, transparency5 });
+		DrawText("You are an invader.", 50, 550, 50, { 255, 20, 20, transparency5 });
+		DrawText("Glory to The Leader.", 50, 650, 50, { 152, 241, 255, transparency6 });
 
 	}
 

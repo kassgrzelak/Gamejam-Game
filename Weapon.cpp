@@ -35,7 +35,7 @@ std::vector<Bullet> Weapon::fire(const GameState& gameState, Player& player)
 
 	if (numBullets % 2 == 1)
 	{
-		bullet.setPos(player.getTipPos());
+		bullet.setPos(player.getPos());
 		bullet.setVel(Vec2(0, -bulletSpeed).rotate(player.getRot()) + oldPlayerVel);
 
 		bullets.push_back(bullet);
@@ -46,11 +46,11 @@ std::vector<Bullet> Weapon::fire(const GameState& gameState, Player& player)
 
 	for (float angle = halfAngle; angle > 0.01f; angle -= step)
 	{
-		bullet.setPos(player.getTipPos());
+		bullet.setPos(player.getPos());
 		bullet.setVel(Vec2(0, -bulletSpeed).rotate((player.getRot() + angle)) + oldPlayerVel);
 		bullets.push_back(bullet);
 
-		bullet.setPos(player.getTipPos());
+		bullet.setPos(player.getPos());
 		bullet.setVel(Vec2(0, -bulletSpeed).rotate((player.getRot() - angle)) + oldPlayerVel);
 		bullets.push_back(bullet);
 	}

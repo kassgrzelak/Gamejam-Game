@@ -49,6 +49,9 @@ private:
 	double timeOfLastEnemySpawn = -999;
 	int enemySpawnCounter = 0;
 
+	double timeOfStart = -999;
+	double timeOfFinish = -999;
+
 	std::vector<Weapon> weapons;
 	size_t weaponIndex = 0;
 
@@ -63,7 +66,9 @@ private:
 	std::vector<Bullet> enemyMadeBullets;
 	std::vector<Bullet> playerMadeBullets;
 
-	Texture2D testEnemyTex;
+	Texture2D waspTex;
+	Texture2D flyTex;
+	Texture2D bigFlyTex;
 
 	std::list<Enemy*> enemies;
 
@@ -86,7 +91,7 @@ private:
 
 	void updateEnemies(float dt);
 
-	void playVoices();
+	void playVoices() const;
 
 	void spawnEnemies();
 

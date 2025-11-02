@@ -112,7 +112,17 @@ void Player::hit(const GameState& gameState, Enemy* enemy)
 
 	timeOfLastHit = gameState.time;
 	health -= enemy->getDamage();
-	vel += (enemy->getVel() - vel).norm() * enemyBounceStrength;
+
+	Vec2 rel = pos - enemy->getPos();
+	float dist = rel.mag();
+
+	if (dist != 0.0f)
+	{
+		float depth = getSize() / 2 + enemy->getSize() / 2 - dist;
+		pos += rel.norm() * depth;
+	}
+
+	vel += rel.norm() * enemyBounceStrength;
 	if (!damageBarMoving)
 		timeOfDamageBarHit = gameState.time;
 }
@@ -181,7 +191,7 @@ bool Player::collidesWithPickup(const Pickup& pickup) const
 
 void Player::healthPickup()
 {
-	health += 10;
+	health += 20;
 	health = clamp(health, 0.0f, 100.0f);
 }
 
@@ -223,9 +233,9 @@ void Player::updateRot(float dt)
 	float targetRotVel = 0.0f;
 
 	if (IsKeyDown(KEY_A))
-		targetRotVel -= rotSpeed;
+		targetRotVel -= rotSpeed * 0.5f;
 	else if (IsKeyDown(KEY_D))
-		targetRotVel += rotSpeed;
+		targetRotVel += rotSpeed * 0.5f;
 	else
 	{
 		Vec2 mouseDelta = GetMouseDelta();
